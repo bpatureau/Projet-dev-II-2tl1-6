@@ -63,9 +63,17 @@ class Parking:
     def __init__(self, nbr_parking_spot:int, price_parking_spot:float):
         self.nbr_parking_spot = nbr_parking_spot
         self.nbr_parking_spot_free = nbr_parking_spot
-        self.plate_id = set()
         self.__price_parking_spot = price_parking_spot
         self.vehicles = []
+
+    def __str__(self):
+        res = "matricule\t| client\t| date\n"
+        for v in self.vehicles:
+            res += v.licence_plate + "\t\t\t\t"
+            res += v.owner.last_name + "\t\t"
+            res += str(v.start_time) + "\n"
+
+        return res
 
     def get_price(self):
         return self.__price_parking_spot
@@ -117,7 +125,7 @@ def main():
     owners = []
     vehicles = []
     while True:
-        action = input("Créer un client (c)/ Créer un véhicule (v)/ Gérer le parking (p), Quitter le programme (q) : ")
+        action = input("Créer un client (c)/ Créer un véhicule (v)/ Gérer le parking (p)/ Quitter le programme (q) : ")
         if action == "c":
             nom = input("nom : ")
             prenom = input("prénom : ")
@@ -135,22 +143,25 @@ def main():
             else:
                 vehicles.append(Vehicle(plaque, owner))
         elif action == "p":
-            plaque = input("Plaque d'immatriculation du véhicule : ")
-            vehicle = None
-            for i in vehicles:
-                if plaque == i.licence_plate:
-                    vehicle = i
-            if vehicle == None:
-                print("le véhicule n'as pas été trouver")
+            action = input("Entrée (e)/ sortie (s)/ info (i) : ")
+            if action == "i":
+                print(parking)
             else:
-                action = input("Entrée ou sortie (e/s) : ")
-                if action == "e":
-                    parking.add_vehicle(vehicle)
-                elif action == "s":
-                    try:
-                        parking.remove_vehicle(vehicle)
-                    except ValueError:
-                        print("le véhicule n'est pas dans le parking")
+                plaque = input("Plaque d'immatriculation du véhicule : ")
+                vehicle = None
+                for i in vehicles:
+                    if plaque == i.licence_plate:
+                        vehicle = i
+                if vehicle == None:
+                    print("le véhicule n'as pas été trouver")
+                else:
+                    if action == "e":
+                        parking.add_vehicle(vehicle)
+                    elif action == "s":
+                        try:
+                            parking.remove_vehicle(vehicle)
+                        except ValueError:
+                            print("le véhicule n'est pas dans le parking")
         elif action == "q":
             break
         else:
