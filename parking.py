@@ -2,12 +2,16 @@ from datetime import datetime
 
 
 class Node:
-    def __init__(self):
+    def __init__(self, location: str, premium = False, two_wheels = False):
         self.__free = True
-        self.premium = False
-        self.two_wheels = False
+        self.location = location
+        self.premium = premium
+        self.two_wheels = two_wheels
 
-    def get_free(self):
+    def __str__(self):
+        return self.location
+
+    def is_free(self):
         return self.__free
 
     def switch_state(self):
@@ -24,16 +28,27 @@ class Floor:
         for i in range(nbr_zones):
             zone = []
             for j in range(nbr_places_zone):
-                zone.append(Node())
+                location = ("R" + chr(i+65) + str(j))
+                if floor_number == 0:
+                    if i < 3:
+                        zone.append(Node(location.replace("0", "R", 1), two_wheels=True))
+                    else:
+                        zone.append(Node(location.replace("0", "R", 1), premium=True))
+                else:
+                    zone.append(Node((location + chr(i+65) + str(j))))
             self.display.append(zone)
 
     def __str__(self):
         res = ""
         for zone in self.display:
             for j in zone:
-                res += str(int(j.get_free()))
+                res += str(int(j.premium)) + " "
             res += "\n"
         return res
+
+    def __getitem__(self, item):
+        return self.display[item]
+
 
 class Parking:
     """
@@ -56,14 +71,14 @@ class Parking:
         """
         Utiliser lors des print()
         """
-        res = "matricule\t| client\t| date\n"
+        res = "matricule | client |  date  | heure\n"
         for v in self.vehicles:
-            res += v.licence_plate + "\t\t\t\t"
+            res += "  " + v.licence_plate + "\t\t"
             if v.owner:
-                res += v.owner.last_name + "\t\t"
+                res += v.owner.last_name + "\t"
             else:
                 res += "aucun\t\t"
-            res += str(v.start_time) + "\n"
+            res += f"{v.start_time.strftime('%d-%m-%y')}  {v.start_time.strftime('%H:%M')}\n"
 
         return res
 
@@ -77,6 +92,18 @@ class Parking:
         for i in range(nbr_floor):
             parking.append(Floor(i, 10, 5))
         return parking
+
+
+    def print_parking(self):
+        for i in self.parking:
+            print(i)
+
+
+    def find_place(self, place: str):
+        if place[0].upper() == "R":
+            place = "0" + place[1:]
+        return self.parking[int(place[0])][ord(place[1])-65][int(place[2])]
+
 
     def get_price(self):
         """
@@ -115,7 +142,7 @@ class Parking:
         self.nbr_parking_spot_free -= 1
         vehicle.start_time = datetime.now()
         print(
-            f"Le véhicule immatriculé {vehicle.licence_plate} est rentré le {vehicle.subscription_end.strftime('%d/%m/%Y')} à {vehicle.subscription_end.strftime('%H:%M')}, il reste {self.nbr_parking_spot_free} place dans le parking")
+            f"Le véhicule immatriculé {vehicle.licence_plate} est rentré le {vehicle.start_time.strftime('%d/%m/%Y')} à {vehicle.start_time.strftime('%H:%M')}, il reste {self.nbr_parking_spot_free} place dans le parking")
 
     def remove_vehicle(self, vehicle):
         """
