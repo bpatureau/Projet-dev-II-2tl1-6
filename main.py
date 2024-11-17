@@ -38,7 +38,7 @@ def manage_vehicles(vehicles, owners, parking):
                 if owner == None:
                     print("le propriétaire n'as pas été trouver")
                 else:
-                    new_vehicle = Vehicle(plaque, owner, True, abonnement)
+                    new_vehicle = Vehicle(plaque, owner, True, abonnement, parking)
                     vehicles.add(new_vehicle)
                     parking.prime_vehicles.add(new_vehicle)
         else:
@@ -61,14 +61,11 @@ def manage_vehicles(vehicles, owners, parking):
 
 
 def manage_parking(parking, vehicles):
-    action = input("Entrée (e)/ sortie (s)/ info (i) : ")
+    action = input("Entrée (e)/ sortie (s)/ info (i)/ afficher étages (p) : ")
     if action == "i":
         print(parking)
-    elif action == "r":
-        print("Cette action effaceras toute les données sur le parking")
-        action = input("Voulez-vous continuez ? (oui/non) : ")
-        if action == "oui":
-            parking = reset_parking()
+    elif action == "p":
+        parking.print_parking()
     else:
         plaque = input("Plaque d'immatriculation du véhicule : ")
         vehicle = None
@@ -91,10 +88,12 @@ def reset_parking():
     try:
         nbr_spot = int(input("Nombres de places de parking : "))
         price = float(input("tarif : "))
+        nbr_floor = int(input("Nombres d'étages (rez-de-chaussé compris) : "))
     except TypeError:
         print("Veuillez entrer des nombres entiers")
     else:
-        new_parking = Parking(nbr_spot, price)
+        new_parking = Parking(nbr_spot, price, nbr_floor)
+        new_parking.print_parking()
         with open("data.pickle", "wb") as f:
             pickle.dump(new_parking, f, protocol=pickle.HIGHEST_PROTOCOL)
         return new_parking
@@ -135,6 +134,11 @@ def main():
                 manage_parking(parking, vehicles)
             elif action == "q":
                 break
+            elif action == "r":
+                print("Cette action effaceras toute les données sur le parking")
+                action = input("Voulez-vous continuez ? (oui/non) : ")
+                if action == "oui":
+                    parking = reset_parking()
             else:
                 print("Mauvaise entrée")
     except FileNotFoundError:
