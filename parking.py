@@ -11,6 +11,20 @@ class Node:
     def __str__(self):
         return self.location
 
+    def __repr__(self):
+        if self.premium:
+            if self.__free:
+                return "P"
+            else:
+                if self.two_wheels:
+                    return "T"
+                else:
+                    return "R"
+        elif self.two_wheels:
+            return "2"
+        else:
+            return "F"
+
     def is_free(self):
         return self.__free
 
@@ -31,18 +45,19 @@ class Floor:
                 location = ("R" + chr(i+65) + str(j))
                 if floor_number == 0:
                     if i < 3:
-                        zone.append(Node(location.replace("0", "R", 1), two_wheels=True))
+                        zone.append(Node(location, two_wheels=True))
                     else:
-                        zone.append(Node(location.replace("0", "R", 1), premium=True))
+                        zone.append(Node(location, premium=True))
                 else:
                     zone.append(Node((location + chr(i+65) + str(j))))
             self.display.append(zone)
 
     def __str__(self):
-        res = ""
-        for zone in self.display:
+        res = "  0 1 2 3 4 5 6 7 8 9\n"
+        for n, zone in enumerate(self.display):
+            res += chr(n+65) + " "
             for j in zone:
-                res += str(int(j.premium)) + " "
+                res += repr(j) + " "
             res += "\n"
         return res
 
