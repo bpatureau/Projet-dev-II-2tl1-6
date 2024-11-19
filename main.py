@@ -118,6 +118,7 @@ def init():
 
 
 def main():
+    filename_error = False #Pour le finally
     try:
         parking, vehicles, owners = init()
         while True:
@@ -141,15 +142,22 @@ def main():
                     parking = reset_parking()
             else:
                 print("Mauvaise entrée")
-    except FileNotFoundError:
+    except FileNotFoundError as error:
         print("ERREUR : mauvais nom de fichier ou fichier non-existant")
+        filename_error = True
+
+    except EOFError:
+        print("Le fichier est vide, création d'un nouveau parking")
+        parking = reset_parking()
+
     except Exception:
-        with open("data.pickle", "wb") as f:
-            pickle.dump(parking, f, protocol=pickle.HIGHEST_PROTOCOL)
         print_exc()
-    else:
-        with open("data.pickle", "wb") as f:
-            pickle.dump(parking, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+    finally:
+        if not filename_error:
+            print("test")
+            with open("data.pickle", "wb") as f:
+                pickle.dump(parking, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 if __name__ == "__main__":
