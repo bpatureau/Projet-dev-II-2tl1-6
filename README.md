@@ -66,7 +66,7 @@ Lors du lancement du programme, ce fichier est utilisé pour charger l'objet par
 + faire un résumer de la journée lors de la fermeture du programme (éventuellement reprendre le dernier résumer si la même date)
 + enregistrer le résumer de la journée dans un fichier (un simple fichier txt devrait suffire)
 + Alerte lorsque le parking est presque plein
-+ Revoire l'affichage des étages
++ Permettre de réserver des places au première étage si r-d-c complet
 
 ## Interface graphique
 
