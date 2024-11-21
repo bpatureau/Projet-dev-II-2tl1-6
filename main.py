@@ -61,6 +61,12 @@ def manage_vehicles(vehicles, owners, parking):
 
 
 def manage_parking(parking, vehicles):
+    """
+        pre:
+            parking: liste d'objet
+            vehicule: est un objet
+        post:permet d'ajouter, de retirer, de prendre les infos du parkings ou afficher la répartion des palces sur les différents étages.
+    """
     action = input("Entrée (e)/ sortie (s)/ info (i)/ afficher étages (p) : ")
     if action == "i":
         print(parking)
@@ -118,6 +124,10 @@ def init():
 
 
 def main():
+    """
+        pre:
+        post:appele la fonction init(), et permet d'ajouter des porprietaires, gerer/réinitialiser le parking, gerer les vehicules et quitter le programme. ainsi que de gerer la gestion de certaine erreur. 
+    """
     filename_error = False #Pour le finally
     try:
         parking, vehicles, owners = init()
