@@ -48,10 +48,9 @@ class Vehicle:
 
     def calc_sub_time(self, sub_time):
         """
-        Calcule la date de fin de l'abonnement
-        :param sub_time: le temps en mois de l'abonnement
-        :return: un tuple composeé du dernier abonnement (aujourd'hui si le véhicule n'était pas abonné)
-                 et de la date de fin de l'abonnement
+        pre: 
+            sub_time est un entier qui indique une durée en mois
+        post:retourne un tuple composé du dernier abonnement et de sa date de fin
         """
         if self.still_subscribed():
             date = self.subscription_end
@@ -70,8 +69,8 @@ class Vehicle:
 
     def still_subscribed(self):
         """
-        Vérifie si le véhicule est abonné et si c'est le cas, si il est encore valide
-        :return: True ou False
+        pre:
+        post: verifie si il est ne ordre de paiment, return true ou false
         """
         if self.subscription_end == None:
             return False
