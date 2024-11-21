@@ -115,6 +115,11 @@ class Parking:
 
 
     def find_place(self, place: str):
+        """
+        pre:
+            place est un string qui permet de savoir quelle type de vehicule rentre dans le parking
+        post:nous indique quelle est la premiere place disponible 
+        """
         if place[0].upper() == "R":
             place = "0" + place[1:]
         return self.parking[int(place[0])][ord(place[1])-65][int(place[2])]
