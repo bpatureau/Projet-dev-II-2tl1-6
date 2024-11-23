@@ -177,6 +177,15 @@
         <mxCell id="xzerpvc79sSPYA-fLSdk-3" value="1" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
           <mxGeometry x="745" y="188" width="30" height="30" as="geometry" />
         </mxCell>
+        <mxCell id="xzerpvc79sSPYA-fLSdk-4" value="0..30" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="725" y="-82" width="50" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="xzerpvc79sSPYA-fLSdk-5" value="0..250" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="900" y="68" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="xzerpvc79sSPYA-fLSdk-6" value="0..220" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="720" y="288" width="60" height="30" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
