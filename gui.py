@@ -32,6 +32,15 @@ class GUI:
         self.root.mainloop()
 
     def _create_tab(self, title):
+        """
+        Crée un nouvel onglet dans le notebook.
+
+        PRE :
+            title (str): Le titre de l'onglet.
+
+        POST :
+            returns : ttk.Frame: Le frame créé pour l'onglet.
+        """
         frame = ttk.Frame(self.notebook)
         self.notebook.add(frame, text=title)
         return frame
@@ -119,6 +128,18 @@ class GUI:
         self.subscriber_tree.pack(fill="both", expand=True)
 
     def _sort_by_column(self, tv, col, reverse):
+        """
+        Trie les éléments du Treeview par rapport à une colonne donnée.
+
+        PRE :
+            - tv : est initialisé et contient des données
+            - col : existe dans le Treeview
+            - reverse : valeur booléenne
+
+        POST :
+            - Les éléments du Treeview sont triés par rapport à la colonne spécifiée.
+            - Le sens du tri est inversé à chaque clic sur l'en-tête de colonne.
+        """
         l = [(tv.set(k, col), k) for k in tv.get_children('')]
         l.sort(key=lambda t: str(t[0]), reverse=reverse)
 
@@ -128,6 +149,17 @@ class GUI:
         tv.heading(col, command=lambda _col=col: self._sort_by_column(tv, _col, not reverse))
 
     def search_subscriber(self):
+        """
+        Recherche un abonné dans le Treeview "subsciber_tree" en fonction de sa plaque d'immatriculation.
+
+        PRE :
+            - search_term : n'est pas vide.
+            - subscriber_tree : est correctement initialisé et contient des données.
+
+        POST :
+            - Si l'abonné est trouvé, il est sélectionné et mis en évidence dans le Treeview "subscriber_tree".
+            - Si l'abonné n'est pas trouvé, un message d'erreur est affiché.
+        """
         search_term = self.search_entry.get().strip()
 
         if not search_term:

@@ -82,9 +82,17 @@ class Vehicle:
 
     def become_subscribed(self, sub_time: int, parking: object):
         """
-        Commence l'abonnement du véhicule
-        :param parking: le parking
-        :param sub_time: la durée de l'abonnement en mois
+        Souscrit un véhicule à un abonnement.
+
+        PRE :
+            - `sub_time` : entier représentant la durée de l'abonnement en mois
+            - `parking` : objet de type Parking
+
+        POST :
+            - Met à jour l'état d'abonnement du véhicule.
+            - Calcule et enregistre la date de fin de l'abonnement.
+            - Attribue une place de parking premium au véhicule si disponible.
+            - Modifie l'état de la place réservée dans le parking.
         """
         if self.still_subscribed():
             print(f"Déjà abonné jusqu'au {self.subscription_end.strftime('%d/%m/%y')} à {self.subscription_end.strftime('%H:%M')}")

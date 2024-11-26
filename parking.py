@@ -180,11 +180,15 @@ class Parking:
 
     def remove_prime_vehicle(self, vehicle):
         """
-        retire un ancien véhicule abonné de la liste des abonnés
-        si il ne se trouve pas dans le parking lors de la fermeture du programme,
-        il sera effacer de façon permanente (sauf si on le recrée)
-        :param vehicle: le véhicule à retirer
-        :return: True ou False
+        Supprime un véhicule abonné de la liste des abonnés.
+
+        PRE :
+            - `vehicle` : objet de type Vehicle et est un véhicule abonné
+
+        POST :
+            - Retire le véhicule de l'ensemble `prime_vehicles` du parking si l'utilisateur confirme.
+            - Affiche un message indiquant le résultat de l'opération.
+            - Retourne une valeur booléenne.
         """
         if vehicle in self.prime_vehicles:
             if vehicle.subscription_end < datetime.now():

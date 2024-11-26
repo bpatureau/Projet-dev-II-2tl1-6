@@ -8,11 +8,23 @@ from vehicle import Vehicle, Owner
 
 def manage_vehicles(vehicles, owners, parking):
     """
-    gère les véhicules en ligne de commande
-    :param vehicles: set des véhicules existants
-    :param owners: set des clients ayant un ou plusieurs véhicule(s) abonné(s)
-    :param parking: l'objet parking
-    :return: None
+    Gère les opérations de création, suppression et affichage d'informations sur les véhicules.
+
+    PRE :
+        - `vehicles` : ensemble (set) contenant les véhicules existants.
+        - `owners` : ensemble (set) contenant les propriétaires des véhicules.
+        - `parking` :  objet représentant le parking.
+
+    POST :
+        - En cas de création :
+            - Un nouveau véhicule est ajouté à l'ensemble `vehicles`.
+            - Si le véhicule est abonné, il est également ajouté à `parking.prime_vehicles`.
+        - En cas de suppression :
+            - Le véhicule est supprimé de l'ensemble `vehicles`.
+            - Si le véhicule était abonné et se trouvait dans le parking, il est également supprimé de `parking.prime_vehicles`.
+        - En cas d'affichage :
+            - Les informations de tous les véhicules sont affichées à l'écran.
+
     """
     action = input("Créer (c)/ Suprimmer (s)/ Info (i)")
     if action == "i":
