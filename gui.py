@@ -7,6 +7,8 @@ class GUI:
         self.root = tk.Tk()
         self.root.state('zoomed')  # Fullscreen the window
         self.root.title('Parking de M. Antoine Stationneur')
+        self.floors = ("Rez de chaussée", "Étage 1", "Étage 2", "Étage 3", "Étage 4")
+        self.selected_floor = self.floors[0]
 
         # Configure tab style
         style = ttk.Style()
@@ -22,7 +24,9 @@ class GUI:
         self.report_tab = self._create_tab("Rapport")
 
         # Parking tab content
+        self.parking_overview_frame = None # Added this to be able to manipulate the parking overview
         self._create_parking_tab_content()
+
 
         # Subscriber tab content
         self._create_subscriber_tab_content()
@@ -46,53 +50,66 @@ class GUI:
         return frame
 
     def _create_parking_tab_content(self):
-        parking_title_label = tk.Label(self.parking_tab, text="Gestionnaire du Parking", font=("Arial", 20))
+        parking_title_label = tk.Label(self.parking_tab, text="Gestionnaire du Parking", font=("Arial", 20, "bold"))
         parking_title_label.pack(pady=10)
 
-        parking_capacity_label = tk.Label(self.parking_tab, text="Capacité du parking :", font=("Arial", 15))
+        parking_capacity_label = tk.Label(self.parking_tab, text="Capacité du parking :", font=("Arial", 15, "bold"))
         parking_capacity_label.pack()
 
         parking_capacity_number = tk.Label(self.parking_tab, text="NUMBER NEEDS TO BE ADDED HERE example: 2/250",
-                                            font=("Arial", 12), fg='red')
+                                           font=("Arial", 12), fg='red')
         parking_capacity_number.pack()
 
         self._create_floor_selection_buttons()
 
-        memo_label = tk.Label(self.parking_tab, text="Buttons do nothing for now", font=("Arial", 12), fg="red")
-        memo_label.pack(pady=10)
+        floor_label = tk.Label(self.parking_tab, text="Étage sélectionné :", font=("Arial", 12, "bold"))
+        floor_label.pack(pady=5)
 
-        # Create parking overview (function for cleaner code)
         self._create_parking_overview()
 
     def _create_floor_selection_buttons(self):
         button_frame = tk.Frame(self.parking_tab)
         button_frame.pack()
 
-        floors = ("Rez de chaussée", "Étage 1", "Étage 2", "Étage 3", "Étage 4")
-        for i, floor in enumerate(floors):
-            button = tk.Button(button_frame, text=floor, font=("Arial", 12))
+        for floor in self.floors:
+            button = tk.Button(button_frame, text=floor, font=("Arial", 12),
+                               command=lambda f=floor: self._on_floor_select(f))
             button.pack(side=tk.LEFT, padx=5, pady=5)
 
     def _create_parking_overview(self):
-        parking_overview_frame = tk.Frame(self.parking_tab)
-        parking_overview_frame.pack()
+        self.selected_floor_label = tk.Label(self.parking_tab, text= self.selected_floor, font=("Arial", 12, "bold"))
+        self.selected_floor_label.pack()
+
+        self.parking_overview_frame = tk.Frame(self.parking_tab)
+        self.parking_overview_frame.pack()
 
         row_labels = ["A ", "B ", "C ", "D ", "E "]
         for i in range(5):
-            row_label = tk.Label(parking_overview_frame, text=row_labels[i], font=("Arial", 15))
+            row_label = tk.Label(self.parking_overview_frame, text=row_labels[i], font=("Arial", 15))
             row_label.grid(row=i, column=0)
 
             for j in range(10):
-                parking_space = tk.Button(parking_overview_frame,
-                                          text=f"{row_labels[i]}- {j+1}", font=("Arial", 10, "bold"),
+                parking_space = tk.Button(self.parking_overview_frame,
+                                          text=f"{row_labels[i]}- {j + 1}", font=("Arial", 10, "bold"),
                                           width=15, height=5, borderwidth=1, relief="solid")
-                parking_space.grid(row=i, column=j+1)
+                parking_space.grid(row=i, column=j + 1)
+                #parking_space.configure(background="lightgreen") example how we could change the colors of the parking spaces
+                # Add more functionality to parking spaces like color coding, click events, etc
+
+    def _on_floor_select(self, floor):
+        self.selected_floor = floor
+        self._reload_parking_overview()
+
+    def _reload_parking_overview(self):
+        self.selected_floor_label.destroy()
+        self.parking_overview_frame.destroy()
+        self._create_parking_overview()
 
     def _create_subscriber_tab_content(self):
         subscriber_title_label = tk.Label(self.subscriber_tab, text="Gestionnaire des Abonnements", font=("Arial", 20))
         subscriber_title_label.pack(pady=10)
 
-        # Search bar
+        # Search bar for the subscribers
         self.search_entry = tk.Entry(self.subscriber_tab)
         self.search_entry.pack(pady=10)
 
@@ -102,7 +119,7 @@ class GUI:
         self.subscriber_search_button = tk.Button(subscriber_top_button_frame, text="Rechercher", command=self.search_subscriber)
         self.subscriber_search_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter") # Add Subscribers, but i'm not sure how exactly
+        self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter")
         self.subscriber_add_button.pack(side=tk.LEFT, padx=5, pady=5)
 
 
@@ -122,6 +139,7 @@ class GUI:
             ("A", "A", "A.A@A.COM", "AA-AAA-AA", "A - A", "2000-01-01")
         ]
 
+        # Insertion of the data
         for row in data:
             self.subscriber_tree.insert("", "end", values=row)
 
