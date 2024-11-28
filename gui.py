@@ -7,8 +7,11 @@ class GUI:
         self.root = tk.Tk()
         self.root.state('zoomed')  # Fullscreen the window
         self.root.title('Parking de M. Antoine Stationneur')
+
         self.floors = ("Rez de chaussée", "Étage 1", "Étage 2", "Étage 3", "Étage 4")
         self.selected_floor = self.floors[0]
+
+        self.line_labels = ["A ", "B ", "C ", "D ", "E "]
 
         # Configure tab style
         style = ttk.Style()
@@ -35,6 +38,13 @@ class GUI:
 
         self.root.mainloop()
 
+    def center_window(self, window):
+        screen_width = self.root.winfo_screenwidth()
+        screen_height = self.root.winfo_screenheight()
+        x = (screen_width / 2) - (window.winfo_reqwidth() / 2)
+        y = (screen_height / 2) - (window.winfo_reqheight() / 2)
+        window.geometry(f"+{int(x)}+{int(y)}")
+
     def _create_tab(self, title):
         """
         Crée un nouvel onglet dans le notebook.
@@ -56,14 +66,14 @@ class GUI:
         parking_capacity_label = tk.Label(self.parking_tab, text="Capacité du parking :", font=("Arial", 15, "bold"))
         parking_capacity_label.pack()
 
-        parking_capacity_number = tk.Label(self.parking_tab, text="NUMBER NEEDS TO BE ADDED HERE example: 2/250",
+        parking_capacity_number_label = tk.Label(self.parking_tab, text="NUMBER",
                                            font=("Arial", 12), fg='red')
-        parking_capacity_number.pack()
+        parking_capacity_number_label.pack()
 
         self._create_floor_selection_buttons()
 
         floor_label = tk.Label(self.parking_tab, text="Étage sélectionné :", font=("Arial", 12, "bold"))
-        floor_label.pack(pady=5)
+        floor_label.pack()
 
         self._create_parking_overview()
 
@@ -78,23 +88,25 @@ class GUI:
 
     def _create_parking_overview(self):
         self.selected_floor_label = tk.Label(self.parking_tab, text= self.selected_floor, font=("Arial", 12, "bold"))
-        self.selected_floor_label.pack()
+        self.selected_floor_label.pack(pady=10)
 
         self.parking_overview_frame = tk.Frame(self.parking_tab)
         self.parking_overview_frame.pack()
 
-        row_labels = ["A ", "B ", "C ", "D ", "E "]
         for i in range(5):
-            row_label = tk.Label(self.parking_overview_frame, text=row_labels[i], font=("Arial", 15))
-            row_label.grid(row=i, column=0)
+            line_label = tk.Label(self.parking_overview_frame, text=self.line_labels[i], font=("Arial", 15))
+            line_label.grid(row=i, column=0)
 
             for j in range(10):
+                parking_space_number = (i, j)
                 parking_space = tk.Button(self.parking_overview_frame,
-                                          text=f"{row_labels[i]}- {j + 1}", font=("Arial", 10, "bold"),
-                                          width=15, height=5, borderwidth=1, relief="solid")
+                                          text=f"{self.line_labels[i]}- {j + 1}", font=("Arial", 10, "bold"),
+                                          width=15, height=5, borderwidth=1, relief="solid",
+                                          command=lambda line = i, column = j: self.open_parking_space_window(line, column)) # For now, it only gives the parking spot but not the floor
                 parking_space.grid(row=i, column=j + 1)
-                #parking_space.configure(background="lightgreen") example how we could change the colors of the parking spaces
-                # Add more functionality to parking spaces like color coding, click events, etc
+                # parking_space.configure(background="lightgreen") example how we could change the colors of the parking spaces and
+                # add more functionality to parking spaces like color coding, click events, etc
+
 
     def _on_floor_select(self, floor):
         self.selected_floor = floor
@@ -104,6 +116,16 @@ class GUI:
         self.selected_floor_label.destroy()
         self.parking_overview_frame.destroy()
         self._create_parking_overview()
+
+    def open_parking_space_window(self, line, col):
+        new_window = tk.Toplevel(self.root)
+        new_window.title(f"Parking {self.line_labels[line]}- {col + 1} sur {self.selected_floor}")
+
+        self.center_window(new_window)
+
+        # Content of the new window, here we will add the vehicles plate number and if it's a subscriber then also name, & so on .. maybe
+        label = tk.Label(new_window, text=f"This is parking space {self.line_labels[line]}- {col + 1} sur {self.selected_floor}")
+        label.pack(pady=20, padx=20)
 
     def _create_subscriber_tab_content(self):
         subscriber_title_label = tk.Label(self.subscriber_tab, text="Gestionnaire des Abonnements", font=("Arial", 20))
@@ -140,8 +162,8 @@ class GUI:
         ]
 
         # Insertion of the data
-        for row in data:
-            self.subscriber_tree.insert("", "end", values=row)
+        for line in data:
+            self.subscriber_tree.insert("", "end", values=line)
 
         self.subscriber_tree.pack(fill="both", expand=True)
 
