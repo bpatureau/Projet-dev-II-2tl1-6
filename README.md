@@ -1,4 +1,12 @@
 # Projet-dev-II-2tl1-6
+[//]: # (Use this for colored text: ${\textsf{\color{red}text}}$)
+## Table of contents
+
++ [Résumé du projet](#résumé-du-projet)
++ [MVP](#mvp)
++ [États actuelle](#états-actuelle)
++ [À implémenter](#à-implémenter)
++ [Interface graphique](#interface-graphique)
 
 ## Résumé du projet
 
@@ -8,7 +16,7 @@ L’interface affiche une vue claire des **zones et places disponibles**, gère 
 
 Tout est pensé pour simplifier la gestion quotidienne sans matériel supplémentaire, tout en offrant une expérience fluide et organisée pour le propriétaire et les clients.
 
-## **MVP** (déjà implémenté)
+## **MVP**
 
 Le MVP permet, via l'interface de texte, les actions suivantes:
 
@@ -23,10 +31,9 @@ Le MVP permet, via l'interface de texte, les actions suivantes:
 
 Le parking est composé de plusieurs étages (rez-de-chaussé compris).  Chaque étage est composé de 5 zones de 10 places.  Chaque place est un noeuds (class Node) représentant une place et ayant un identifiant composé de l'étage, de la zone et de la place (ex: 1B5, RE0,...).  Une place peut avoir 5 états différents:
 
-+ Premium libre (place uniquement pour les abonnés actuellemnt non-attribuée)
-+ Réserver (idéalement une place premium, sinon une place classique)
++ Réserver (place réservé par un abonné)
 + 2 roues (pour les véhicules 2 roues avec tarif réduit)
-+ 2 roues réservé (par un abonné)
++ 2 roues réservé (par un abonné 2-roues)
 + Libre (tarif classic)
 
 Un étage est représenté par la matrice suivante:
@@ -40,21 +47,21 @@ Un étage est représenté par la matrice suivante:
                                       ]
 ```
 
-En plus du MVP voici les actions disponibles:
+Voici les actions disponibles:
 
-+ création d'un abonnement lors de la création d'un véhicule (nécessite un client)
-+ supprimer un véhicule (si il n'est pas dans le parking)
-+ informations sur les véhicules (parking + abonnés)
-+ afficher l'état de chaque étage du parking
-+ faire un reset du parking (utile lorsqu'on implémante des nouveautées et qu'on a besoin de mettre l'objet parking à jours)
++ Création d'un abonnement lors de la création d'un véhicule (nécessite un client) → Dans GUI
++ Supprimer un véhicule (si il n'est pas dans le parking) → Quand un abonnement n'as pas été renouvelé (${\textsf{\color{orange}à implémenter dans le GUI}}$)
++ Informations sur les véhicules abonnés → Dans GUI
++ Afficher l'état de chaque étage du parking → Dans GUI (${\textsf{\color{orange}couleurs à implémenter}}$)
++ Faire un reset du parking → Lors d'une erreur critique (à implémenter dans le GUI)
 
-L'affichage de la date et de l'heure est plus claire que dans le MVP et un client n'est nécessaire qu'en cas d'abonnement.
+L'affichage de la date et de l'heure claire → ${\textsf{\color{orange}À utiliser lors des affichages dans GUI}}$
 
-Le parking est maitenant enregistré dans un fichier (data.pickle) permettant de garder l'état actuelle du parking ainsi que les véhicules stationnant dans le parking et les véhicules abonnés.
-Lors du lancement du programme, ce fichier est utilisé pour charger l'objet parking et par la suite dresser la liste des véhicules et propriétaires actuellement dans le programme. Le format de fichier étant du binaire, il n'est pas lisible par un humain. En cas d'erreur dans le programme, le parking est toujours enregistré dans le fichier (hormis si l'erreur provient du nom du fichier).
+Le parking est enregistré dans un fichier (data.pickle) permettant de garder l'état actuelle du parking ainsi que les véhicules stationnant dans le parking et les véhicules abonnés.
+Lors du lancement du programme, ce fichier est utilisé pour charger l'objet parking et par la suite dresser la liste des véhicules et propriétaires actuellement dans le programme. Le format de fichier étant du binaire, il n'est pas lisible par un humain. En cas d'erreur dans le programme, le parking est toujours enregistré dans le fichier (hormis si l'erreur provient du nom du fichier). Si l'erreur provient du fichier (fichier vide), le programme propose de créer un nouveau parking et l'enregistre dans le fichier.
 
 ## À implémenter
-[//]: # (${\textsf{\color{red}text}}$)
+
 ### Majeures
 
 + Les véhicules 2 roues (tarifs, abonnement, places 2 roues,...)
