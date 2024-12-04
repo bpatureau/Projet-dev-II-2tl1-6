@@ -54,19 +54,28 @@ Le parking est maitenant enregistré dans un fichier (data.pickle) permettant de
 Lors du lancement du programme, ce fichier est utilisé pour charger l'objet parking et par la suite dresser la liste des véhicules et propriétaires actuellement dans le programme. Le format de fichier étant du binaire, il n'est pas lisible par un humain. En cas d'erreur dans le programme, le parking est toujours enregistré dans le fichier (hormis si l'erreur provient du nom du fichier).
 
 ## À implémenter
-
+[//]: # (${\textsf{\color{red}text}}$)
 ### Majeures
 
-+ les véhicules 2 roues (tarifs, abonnement, places 2 roues,...)
-+ une interface graphique (voir Interface graphique)
++ Les véhicules 2 roues (tarifs, abonnement, places 2 roues,...)
++ Terminer l'interface graphique (voir [Interface graphique](#interface-graphique) pour la présentation ou [GUI](#gui) pour ce qu'il faut implémenter)
++ ${\textsf{\color{orange}Transférer la boucle while True du main (le MVP) dans les différentes classes (Vehicle, Parking, GUI)}}$
 
 ### Mineurs
 
-+ ralonger l'abonnement
-+ faire un résumer de la journée lors de la fermeture du programme (éventuellement reprendre le dernier résumer si la même date)
-+ enregistrer le résumer de la journée dans un fichier (un simple fichier txt devrait suffire)
-+ Alerte lorsque le parking est presque plein
-+ Permettre de réserver des places au première étage si r-d-c complet
++ Ralonger l'abonnement (dans class Vehicle)
++ Faire un résumer de la journée lors de la fermeture du programme (éventuellement reprendre le dernier résumer si la même date)
++ Enregistrer le résumer de la journée dans un fichier (un simple fichier txt devrait suffire)
+
+### GUI
+
++ Permettre de réserver des places (idéalement dans le form lors d'un abonnement et/ou en cliquant sur la place voulu)
++ ${\textsf{\color{red}Rajouter une voiture sans abonnement dans le parking}}$
++ ${\textsf{\color{red}Sortir une voiture sans abonnement et afficher le montant à payer}}$
++ Alerte lorsque le parking est presque plein via fenêtre pop-up
++ Afficher le résumer de la journée dans le tab dédié
++ Colorer les places réservées (et 2-roues)
++ ${\textsf{\color{orange}Modifier le nombre de places disponibles}}$ (-1 par véhicule abonnée, -1 par véhicule classique dans le parking et +1 quand une voiture classique sort du parking)
 
 ## Interface graphique
 
