@@ -239,11 +239,13 @@ class GUI:
 
         # Create a new top-level window
         new_window = tk.Toplevel(self.root)
-        new_window.title("Subscribe Vehicle")
+        new_window.title("Ajouter un abonné")
+        self.center_window(new_window)
 
         # Disable the main window
         self.root.attributes("-disabled", True)
-        new_window.grab_set()
+        #new_window.grab_set() removed because it doesn't work but reminder
+
         new_window.protocol("WM_DELETE_WINDOW", lambda: self.close_new_window(new_window))
 
         # Form Labels and Entry Fields
@@ -251,35 +253,36 @@ class GUI:
         form_frame.pack()
 
         # License Plate
-        tk.Label(form_frame, text="License Plate:").grid(row=0, column=0, sticky="w", pady=5)
+        tk.Label(form_frame, text="Plaque d'immatriculation :").grid(row=0, column=0, sticky="w", pady=5)
         license_plate_entry = tk.Entry(form_frame, width=30)
         license_plate_entry.grid(row=0, column=1, pady=5)
+        license_plate_entry.focus_set()
 
         # First Name
-        tk.Label(form_frame, text="First Name:").grid(row=1, column=0, sticky="w", pady=5)
+        tk.Label(form_frame, text="Prénom :").grid(row=1, column=0, sticky="w", pady=5)
         first_name_entry = tk.Entry(form_frame, width=30)
         first_name_entry.grid(row=1, column=1, pady=5)
 
         # Last Name
-        tk.Label(form_frame, text="Last Name:").grid(row=2, column=0, sticky="w", pady=5)
+        tk.Label(form_frame, text="Nom :").grid(row=2, column=0, sticky="w", pady=5)
         last_name_entry = tk.Entry(form_frame, width=30)
         last_name_entry.grid(row=2, column=1, pady=5)
 
         # Email
-        tk.Label(form_frame, text="Email:").grid(row=3, column=0, sticky="w", pady=5)
+        tk.Label(form_frame, text="Email :").grid(row=3, column=0, sticky="w", pady=5)
         email_entry = tk.Entry(form_frame, width=30)
         email_entry.grid(row=3, column=1, pady=5)
 
         # Subscription Duration (Radio Buttons)
-        tk.Label(form_frame, text="Subscription Duration:").grid(row=4, column=0, sticky="w", pady=5)
+        tk.Label(form_frame, text="Durée de l'abonnement :").grid(row=4, column=0, sticky="w", pady=5)
         subscription_var = tk.StringVar(value="Month")
-        tk.Radiobutton(form_frame, text="Month", variable=subscription_var, value="Month").grid(row=4, column=1,
-                                                                                                sticky="w")
-        tk.Radiobutton(form_frame, text="Year", variable=subscription_var, value="Year").grid(row=4, column=1,
+        tk.Radiobutton(form_frame, text="1 mois", variable=subscription_var, value="Month").grid(row=4, column=1,
+                                                                                                 sticky="w")
+        tk.Radiobutton(form_frame, text="1 an", variable=subscription_var, value="Year").grid(row=4, column=1,
                                                                                               sticky="e")
 
         # Select Place (Dropdown)
-        tk.Label(form_frame, text="Select Place:").grid(row=5, column=0, sticky="w", pady=5)
+        tk.Label(form_frame, text="Sélectionner le parking :").grid(row=5, column=0, sticky="w", pady=5)
         place_var = tk.StringVar(value="Place 1")
         places = ["Place 1", "Place 2", "Place 3", "Place 4"]
         place_menu = ttk.Combobox(form_frame, textvariable=place_var, values=places, state="readonly")
@@ -320,7 +323,15 @@ class GUI:
         })
 
         # Show a success message
-        messagebox.showinfo("Form Submitted", f"Form Data:\n{form_data}")
+        messagebox.showinfo("Formulaire soumis",
+                            f"L'abonné a été ajouté \n"
+                            f"Plaque : {form_data['license_plate']}\n"
+                            f"Prénom : {form_data['first_name']}\n"
+                            f"Nom : {form_data['last_name']}\n"
+                            f"Email : {form_data['email']}\n"
+                            f"Durée de l'abonnement : {form_data['subscription_duration']}\n"
+                            f"Réservation de parking : {form_data['selected_place']}\n"
+                            )
 
         # Close the new window and re-enable the main window
         self.close_new_window(window)
