@@ -4,6 +4,7 @@ import pickle  # Pour stocker les données
 
 from parking import Parking
 from vehicle import Vehicle, Owner
+from gui import GUI
 
 
 def manage_vehicles(vehicles, owners, parking):
@@ -138,12 +139,13 @@ def init():
 def main():
     """
         pre:
-        post:appele la fonction init(), et permet d'ajouter des porprietaires, gerer/réinitialiser le parking, gerer les vehicules et quitter le programme. ainsi que de gerer la gestion de certaine erreur. 
+        post:appele la fonction init(), et permet d'ajouter des porprietaires, gerer/réinitialiser le parking, gerer les vehicules et quitter le programme. ainsi que de gerer la gestion de certaine erreur.
     """
     filename_error = False #Pour le finally
     try:
         parking, vehicles, owners = init()
-        while True:
+        GUI(parking)
+        while False:
             action = input(
                 "Créer un client (c)/ Gérer les véhicules (v)/ Gérer le parking (p)/ Quitter le programme (q) : ")
             if action == "c":
