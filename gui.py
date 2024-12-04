@@ -64,7 +64,9 @@ class GUI:
 
     def _create_parking_tab_content(self):
         parking_title_label = tk.Label(self.parking_tab, text="Gestionnaire du Parking", font=("Arial", 20, "bold"))
-        parking_title_label.pack(pady=10)
+        parking_title_label.pack(pady=5)
+
+        self._create_entry_exit_buttons()
 
         parking_capacity_label = tk.Label(self.parking_tab, text="Nombre de places disponibles : ", font=("Arial", 15, "bold"))
         parking_capacity_label.pack()
@@ -79,6 +81,16 @@ class GUI:
         floor_label.pack()
 
         self._create_parking_overview()
+
+    def _create_entry_exit_buttons(self):
+        button_frame = tk.Frame(self.parking_tab)
+        button_frame.pack()
+
+        button_entree = tk.Button(button_frame, text="Entrée", width=10, font=("Arial", 15, "bold"))
+        button_sortie = tk.Button(button_frame, text="Sortie", width=10, font=("Arial", 15, "bold"))
+        button_entree.pack(side=tk.LEFT, padx=5, pady=5)
+        button_sortie.pack(side=tk.LEFT, padx=5, pady=5)
+
 
     def _create_floor_selection_buttons(self):
         button_frame = tk.Frame(self.parking_tab)
