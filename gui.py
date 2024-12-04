@@ -1,9 +1,13 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 
+from vehicle import Vehicle, Owner
+
 
 class GUI:
-    def __init__(self):
+    def __init__(self, parking):
+        self.parking = parking
+
         self.root = tk.Tk()
         self.root.state('zoomed')  # Fullscreen the window
         self.root.title('Parking de M. Antoine Stationneur')
@@ -27,9 +31,8 @@ class GUI:
         self.report_tab = self._create_tab("Rapport")
 
         # Parking tab content
-        self.parking_overview_frame = None # Added this to be able to manipulate the parking overview
+        self.parking_overview_frame = None  # Added this to be able to manipulate the parking overview
         self._create_parking_tab_content()
-
 
         # Subscriber tab content
         self._create_subscriber_tab_content()
@@ -63,10 +66,10 @@ class GUI:
         parking_title_label = tk.Label(self.parking_tab, text="Gestionnaire du Parking", font=("Arial", 20, "bold"))
         parking_title_label.pack(pady=10)
 
-        parking_capacity_label = tk.Label(self.parking_tab, text="Capacité du parking :", font=("Arial", 15, "bold"))
+        parking_capacity_label = tk.Label(self.parking_tab, text="Nombre de places disponibles : ", font=("Arial", 15, "bold"))
         parking_capacity_label.pack()
 
-        parking_capacity_number_label = tk.Label(self.parking_tab, text="NUMBER",
+        parking_capacity_number_label = tk.Label(self.parking_tab, text=f"{self.parking.nbr_parking_spot_free}/{self.parking.nbr_parking_spot}",
                                            font=("Arial", 12), fg='red')
         parking_capacity_number_label.pack()
 
@@ -87,45 +90,41 @@ class GUI:
             button.pack(side=tk.LEFT, padx=5, pady=5)
 
     def _create_parking_overview(self):
-        self.selected_floor_label = tk.Label(self.parking_tab, text= self.selected_floor, font=("Arial", 12, "bold"))
+        self.selected_floor_label = tk.Label(self.parking_tab, text=self.selected_floor, font=("Arial", 12, "bold"))
         self.selected_floor_label.pack(pady=10)
 
         self.parking_overview_frame = tk.Frame(self.parking_tab)
         self.parking_overview_frame.pack()
 
-        for i in range(5):
-            line_label = tk.Label(self.parking_overview_frame, text=self.line_labels[i], font=("Arial", 15))
-            line_label.grid(row=i, column=0)
+        # chr(65) --> 'A'
+        for zone in range(len(self.parking.parking)):
+            row_label = tk.Label(self.parking_overview_frame, text=chr(zone + 65), font=("Arial", 15))
+            row_label.grid(row=zone, column=0)
 
-            for j in range(10):
-                parking_space_number = (i, j)
-                parking_space = tk.Button(self.parking_overview_frame,
-                                          text=f"{self.line_labels[i]}- {j + 1}", font=("Arial", 10, "bold"),
-                                          width=15, height=5, borderwidth=1, relief="solid",
-                                          command=lambda line = i, column = j: self.open_parking_space_window(line, column)) # For now, it only gives the parking spot but not the floor
-                parking_space.grid(row=i, column=j + 1)
+            for spot in range(10):
+                parking_space = tk.Button(self.parking_overview_frame, text=f"{chr(zone + 65)}{spot + 1}",
+                                          font=("Arial", 10, "bold"), width=15, height=5, borderwidth=1, relief="solid",
+                                          command=lambda line = zone, column = spot: self.open_parking_space_window(line, column)) # For now, it only gives the parking spot but not the floor)
+                parking_space.grid(row=zone, column=spot + 1)
                 # parking_space.configure(background="lightgreen") example how we could change the colors of the parking spaces and
                 # add more functionality to parking spaces like color coding, click events, etc
-
 
     def _on_floor_select(self, floor):
         self.selected_floor = floor
         self._reload_parking_overview()
 
+    def open_parking_space_window(self, line, col):
+        new_window = tk.Toplevel(self.root)
+        new_window.title(f"Parking {self.line_labels[line]}- {col + 1} sur {self.selected_floor}")
+        self.center_window(new_window)
+        # Content of the new window, here we will add the vehicles plate number and if it's a subscriber then also name, & so on .. maybe
+        label = tk.Label(new_window, text=f"This is parking space {self.line_labels[line]}- {col + 1} sur {self.selected_floor}")
+        label.pack(pady=20, padx=20)
+
     def _reload_parking_overview(self):
         self.selected_floor_label.destroy()
         self.parking_overview_frame.destroy()
         self._create_parking_overview()
-
-    def open_parking_space_window(self, line, col):
-        new_window = tk.Toplevel(self.root)
-        new_window.title(f"Parking {self.line_labels[line]}- {col + 1} sur {self.selected_floor}")
-
-        self.center_window(new_window)
-
-        # Content of the new window, here we will add the vehicles plate number and if it's a subscriber then also name, & so on .. maybe
-        label = tk.Label(new_window, text=f"This is parking space {self.line_labels[line]}- {col + 1} sur {self.selected_floor}")
-        label.pack(pady=20, padx=20)
 
     def _create_subscriber_tab_content(self):
         subscriber_title_label = tk.Label(self.subscriber_tab, text="Gestionnaire des Abonnements", font=("Arial", 20))
@@ -141,7 +140,7 @@ class GUI:
         self.subscriber_search_button = tk.Button(subscriber_top_button_frame, text="Rechercher", command=self.search_subscriber)
         self.subscriber_search_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter")
+        self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter", command=self.add_subsciber)
         self.subscriber_add_button.pack(side=tk.LEFT, padx=5, pady=5)
 
 
@@ -155,15 +154,16 @@ class GUI:
                                          command=lambda _col=column:
                                          self._sort_by_column(self.subscriber_tree,_col,False))
 
-        # Sample data (will be replaced with the actual data)
-        data = [
-            ("Dupont", "Jean", "jean.dupont@exemple.com", "AB-123-CD", "Mensuel", "2024-12-31"),
-            ("A", "A", "A.A@A.COM", "AA-AAA-AA", "A - A", "2000-01-01")
-        ]
+        # Collection of the data
+        data = []
+        for v in self.parking.prime_vehicles:   # v = vehicle
+            owner = v.owner
+            data.append((owner.last_name, owner.first_name, owner.email, v.licence_plate, "Voiture Mensuel",
+                         v.subscription_end))
 
         # Insertion of the data
-        for line in data:
-            self.subscriber_tree.insert("", "end", values=line)
+        for row in data:
+            self.subscriber_tree.insert("", "end", values=row)
 
         self.subscriber_tree.pack(fill="both", expand=True)
 
@@ -219,4 +219,118 @@ class GUI:
         if not found:
             messagebox.showinfo("Recherche", "Aucun abonné trouvé avec cette plaque.")
 
-GUI()
+
+    def add_subsciber(self):
+        form_data = self.open_new_window()
+        owner = Owner(form_data["first_name"], form_data["last_name"], form_data["email"])
+        sub_time = (1 if form_data["subscription_duration"] == "Month" else 12)
+        new_vehicle = Vehicle(form_data["license_plate"], owner, True, sub_time, self.parking)
+        data = [form_data["first_name"], form_data["last_name"], form_data["email"], form_data["license_plate"],
+                "Voiture Mensuel", new_vehicle.subscription_end]
+        self.subscriber_tree.insert("", "end", values=data)
+
+    def open_new_window(self):
+        """
+        Opens a new window for subscribing a vehicle.
+        Returns the data submitted via the form.
+        """
+        # Data container
+        form_data = {}
+
+        # Create a new top-level window
+        new_window = tk.Toplevel(self.root)
+        new_window.title("Subscribe Vehicle")
+
+        # Disable the main window
+        self.root.attributes("-disabled", True)
+        new_window.grab_set()
+        new_window.protocol("WM_DELETE_WINDOW", lambda: self.close_new_window(new_window))
+
+        # Form Labels and Entry Fields
+        form_frame = tk.Frame(new_window, padx=10, pady=10)
+        form_frame.pack()
+
+        # License Plate
+        tk.Label(form_frame, text="License Plate:").grid(row=0, column=0, sticky="w", pady=5)
+        license_plate_entry = tk.Entry(form_frame, width=30)
+        license_plate_entry.grid(row=0, column=1, pady=5)
+
+        # First Name
+        tk.Label(form_frame, text="First Name:").grid(row=1, column=0, sticky="w", pady=5)
+        first_name_entry = tk.Entry(form_frame, width=30)
+        first_name_entry.grid(row=1, column=1, pady=5)
+
+        # Last Name
+        tk.Label(form_frame, text="Last Name:").grid(row=2, column=0, sticky="w", pady=5)
+        last_name_entry = tk.Entry(form_frame, width=30)
+        last_name_entry.grid(row=2, column=1, pady=5)
+
+        # Email
+        tk.Label(form_frame, text="Email:").grid(row=3, column=0, sticky="w", pady=5)
+        email_entry = tk.Entry(form_frame, width=30)
+        email_entry.grid(row=3, column=1, pady=5)
+
+        # Subscription Duration (Radio Buttons)
+        tk.Label(form_frame, text="Subscription Duration:").grid(row=4, column=0, sticky="w", pady=5)
+        subscription_var = tk.StringVar(value="Month")
+        tk.Radiobutton(form_frame, text="Month", variable=subscription_var, value="Month").grid(row=4, column=1,
+                                                                                                sticky="w")
+        tk.Radiobutton(form_frame, text="Year", variable=subscription_var, value="Year").grid(row=4, column=1,
+                                                                                              sticky="e")
+
+        # Select Place (Dropdown)
+        tk.Label(form_frame, text="Select Place:").grid(row=5, column=0, sticky="w", pady=5)
+        place_var = tk.StringVar(value="Place 1")
+        places = ["Place 1", "Place 2", "Place 3", "Place 4"]
+        place_menu = ttk.Combobox(form_frame, textvariable=place_var, values=places, state="readonly")
+        place_menu.grid(row=5, column=1, pady=5)
+
+        # Submit Button
+        submit_button = tk.Button(new_window, text="Submit", command=lambda: self.collect_form_data_and_close(
+            license_plate_entry.get(),
+            first_name_entry.get(),
+            last_name_entry.get(),
+            email_entry.get(),
+            subscription_var.get(),
+            place_var.get(),
+            form_data,
+            new_window
+        ))
+        submit_button.pack(pady=10)
+
+        # Use wait_window to pause until the new window is closed
+        self.root.wait_window(new_window)
+
+        # Return the collected form data
+        return form_data
+
+    def collect_form_data_and_close(self, license_plate, first_name, last_name, email, duration, place, form_data,
+                                    window):
+        """
+        Collects form data and stores it in the provided dictionary, then closes the window.
+        """
+        # Store form data
+        form_data.update({
+            "license_plate": license_plate,
+            "first_name": first_name,
+            "last_name": last_name,
+            "email": email,
+            "subscription_duration": duration,
+            "selected_place": place
+        })
+
+        # Show a success message
+        messagebox.showinfo("Form Submitted", f"Form Data:\n{form_data}")
+
+        # Close the new window and re-enable the main window
+        self.close_new_window(window)
+
+    def close_new_window(self, new_window):
+        """
+        Re-enables the main window and destroys the new window.
+        """
+        new_window.grab_release()
+        new_window.destroy()
+        self.root.attributes("-disabled", False)
+
+#GUI()
