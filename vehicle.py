@@ -97,21 +97,6 @@ class Vehicle:
         if self.still_subscribed():
             print(f"Déjà abonné jusqu'au {self.subscription_end.strftime('%d/%m/%y')} à {self.subscription_end.strftime('%H:%M')}")
         else:
-            res = ""
-            print(parking.parking[0])
-            for z in parking.parking[0].display:
-                for p in z:
-                    if p.premium and p.is_free():
-                        res += str(p) + " - "
-            res = res[:-3]
-            print("Places disponibles : " + res)
-            place = input("Quelle place voulez-vous ? : ")
-            while not (place in res and place.isalnum()):
-                print("Place déjà occupée ou mauvais encodage")
-                place = input("Quelle place voulez-vous ? : ")
-            place = parking.find_place(place)
-            place.switch_state()
-            self.reserved_place = place
             self.__subscribed = True
             self.last_subscription, self.subscription_end = self.calc_sub_time(sub_time)
 

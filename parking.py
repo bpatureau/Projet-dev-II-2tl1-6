@@ -5,25 +5,10 @@ class Node:
     def __init__(self, location: str, premium = False, two_wheels = False):
         self.__free = True
         self.location = location
-        self.premium = premium
         self.two_wheels = two_wheels
 
     def __str__(self):
         return self.location
-
-    def __repr__(self):
-        if self.premium:
-            if self.__free:
-                return "P"
-            else:
-                if self.two_wheels:
-                    return "T"
-                else:
-                    return "R"
-        elif self.two_wheels:
-            return "2"
-        else:
-            return "F"
 
     def is_free(self):
         return self.__free

@@ -240,6 +240,9 @@ class GUI:
         owner = Owner(form_data["first_name"], form_data["last_name"], form_data["email"])
         sub_time = (1 if form_data["subscription_duration"] == "Month" else 12)
         new_vehicle = Vehicle(form_data["license_plate"], owner, True, sub_time, self.parking)
+        place = self.parking.find_place(form_data["selected_place"])
+        place.switch_state()
+        new_vehicle.reserved_place = place
         data = [form_data["first_name"], form_data["last_name"], form_data["email"], form_data["license_plate"],
                 "Voiture Mensuel", new_vehicle.subscription_end]
         self.subscriber_tree.insert("", "end", values=data)
@@ -296,12 +299,18 @@ class GUI:
         tk.Radiobutton(form_frame, text="1 an", variable=subscription_var, value="Year").grid(row=4, column=1,
                                                                                               sticky="e")
 
+
         # Select Place (Dropdown)
         tk.Label(form_frame, text="Place de parking réservée").grid(row=5, column=0, sticky="w", pady=5)
-        place_var = tk.StringVar(value="Place 1")
-        places = ["Place 1", "Place 2", "Place 3", "Place 4"]
+        places = []
+        for z in self.parking.parking[0].display:
+            for p in z:
+                if p.premium and p.is_free():
+                    places.append(str(p))
+        place_var = tk.StringVar(value=places[0])
         place_menu = ttk.Combobox(form_frame, textvariable=place_var, values=places, state="readonly")
         place_menu.grid(row=5, column=1, pady=5)
+        print(place_var)
 
         # Submit Button
         submit_button = tk.Button(new_window, text="Soumettre", command=lambda: self.collect_form_data_and_close(
@@ -339,14 +348,7 @@ class GUI:
 
         # Show a success message
         messagebox.showinfo("Formulaire soumis",
-                            f"L'abonné a été ajouté \n"
-                            f"Plaque : {form_data['license_plate']}\n"
-                            f"Prénom : {form_data['first_name']}\n"
-                            f"Nom : {form_data['last_name']}\n"
-                            f"Email : {form_data['email']}\n"
-                            f"Durée de l'abonnement : {form_data['subscription_duration']}\n"
-                            f"Réservation de parking : {form_data['selected_place']}\n"
-                            )
+                            f"L'abonnement du véhicule {form_data['license_plate']} a été ajouté \n")
 
         # Close the new window and re-enable the main window
         self.close_new_window(window)
@@ -363,9 +365,9 @@ class GUI:
         self.client_entry_exit_base_window()
 
     def client_exit(self):
-        self.client_entry_exit_base_window()
+        self.client_entry_exit_base_window(exit=True)
 
-    def client_entry_exit_base_window(self):
+    def client_entry_exit_base_window(self, exit=False):
         client_license_plate = ""
         new_window = tk.Toplevel(self.root)
         new_window.title("Entrée")
