@@ -159,7 +159,7 @@ class GUI:
 
 
         # Create the Treeview for subscribers
-        columns = ("Nom", "Prénom", "Mail", "Plaque", "Type d'abo", "Expiration")
+        columns = ("Plaque", "Nom", "Prénom", "Mail", "Type d'abo", "Expiration", "Place de parking réservée")
         self.subscriber_tree = ttk.Treeview(self.subscriber_tab, columns=columns, show="headings")
 
         # Configure columns and make all of them sortable
@@ -172,8 +172,8 @@ class GUI:
         data = []
         for v in self.parking.prime_vehicles:   # v = vehicle
             owner = v.owner
-            data.append((owner.last_name, owner.first_name, owner.email, v.licence_plate, "Voiture Mensuel",
-                         v.subscription_end))
+            data.append((v.licence_plate, owner.first_name, owner.last_name, owner.email, "Voiture Mensuel",
+                         v.subscription_end, "Parking RDCA1"))
 
         # Insertion of the data
         for row in data:
@@ -296,7 +296,7 @@ class GUI:
                                                                                               sticky="e")
 
         # Select Place (Dropdown)
-        tk.Label(form_frame, text="Sélectionner le parking :").grid(row=5, column=0, sticky="w", pady=5)
+        tk.Label(form_frame, text="Place de parking réservée").grid(row=5, column=0, sticky="w", pady=5)
         place_var = tk.StringVar(value="Place 1")
         places = ["Place 1", "Place 2", "Place 3", "Place 4"]
         place_menu = ttk.Combobox(form_frame, textvariable=place_var, values=places, state="readonly")
