@@ -32,6 +32,7 @@ class GUI:
 
         # Parking tab content
         self.parking_overview_frame = None  # Added this to be able to manipulate the parking overview
+        self.client_license_plate = None
         self._create_parking_tab_content()
 
         # Subscriber tab content
@@ -86,11 +87,12 @@ class GUI:
         button_frame = tk.Frame(self.parking_tab)
         button_frame.pack()
 
-        button_entree = tk.Button(button_frame, text="Entrée", width=10, font=("Arial", 15, "bold"))
-        button_sortie = tk.Button(button_frame, text="Sortie", width=10, font=("Arial", 15, "bold"))
-        button_entree.pack(side=tk.LEFT, padx=5, pady=5)
-        button_sortie.pack(side=tk.LEFT, padx=5, pady=5)
-
+        button_entry = tk.Button(button_frame, text="Entrée", width=10, font=("Arial", 15, "bold"),
+                                  command=self.client_entry)
+        button_exit = tk.Button(button_frame, text="Sortie", width=10, font=("Arial", 15, "bold"),
+                                command=self.client_exit)
+        button_entry.pack(side=tk.LEFT, padx=5, pady=5)
+        button_exit.pack(side=tk.LEFT, padx=5, pady=5)
 
     def _create_floor_selection_buttons(self):
         button_frame = tk.Frame(self.parking_tab)
@@ -152,7 +154,7 @@ class GUI:
         self.subscriber_search_button = tk.Button(subscriber_top_button_frame, text="Rechercher", command=self.search_subscriber)
         self.subscriber_search_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter", command=self.add_subsciber)
+        self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter", command=self.add_subscriber)
         self.subscriber_add_button.pack(side=tk.LEFT, padx=5, pady=5)
 
 
@@ -232,8 +234,8 @@ class GUI:
             messagebox.showinfo("Recherche", "Aucun abonné trouvé avec cette plaque.")
 
 
-    def add_subsciber(self):
-        form_data = self.open_new_window()
+    def add_subscriber(self):
+        form_data = self.add_subscriber_window()
         owner = Owner(form_data["first_name"], form_data["last_name"], form_data["email"])
         sub_time = (1 if form_data["subscription_duration"] == "Month" else 12)
         new_vehicle = Vehicle(form_data["license_plate"], owner, True, sub_time, self.parking)
@@ -241,7 +243,7 @@ class GUI:
                 "Voiture Mensuel", new_vehicle.subscription_end]
         self.subscriber_tree.insert("", "end", values=data)
 
-    def open_new_window(self):
+    def add_subscriber_window(self):
         """
         Opens a new window for subscribing a vehicle.
         Returns the data submitted via the form.
@@ -256,7 +258,7 @@ class GUI:
 
         # Disable the main window
         self.root.attributes("-disabled", True)
-        #new_window.grab_set() removed because it doesn't work but reminder
+        new_window.grab_set()
 
         new_window.protocol("WM_DELETE_WINDOW", lambda: self.close_new_window(new_window))
 
@@ -301,7 +303,7 @@ class GUI:
         place_menu.grid(row=5, column=1, pady=5)
 
         # Submit Button
-        submit_button = tk.Button(new_window, text="Submit", command=lambda: self.collect_form_data_and_close(
+        submit_button = tk.Button(new_window, text="Soumettre", command=lambda: self.collect_form_data_and_close(
             license_plate_entry.get(),
             first_name_entry.get(),
             last_name_entry.get(),
@@ -352,8 +354,45 @@ class GUI:
         """
         Re-enables the main window and destroys the new window.
         """
+        self.root.attributes("-disabled", False)
         new_window.grab_release()
         new_window.destroy()
-        self.root.attributes("-disabled", False)
+
+    def client_entry(self):
+        self.client_entry_exit_base_window()
+
+    def client_exit(self):
+        self.client_entry_exit_base_window()
+
+    def client_entry_exit_base_window(self):
+        client_license_plate = ""
+        new_window = tk.Toplevel(self.root)
+        new_window.title("Entrée")
+        new_window.protocol("WM_DELETE_WINDOW", lambda: self.close_new_window(new_window))
+        self.center_window(new_window)
+        self.root.attributes("-disabled", True)
+        new_window.grab_set()
+
+
+        form_frame = tk.Frame(new_window, padx=10, pady=10)
+        form_frame.pack()
+
+        tk.Label(form_frame, text="Plaque d'immatriculation :").grid(row=0, column=0, sticky="w", pady=5)
+        license_plate_entry = tk.Entry(form_frame, width=30)
+        license_plate_entry.grid(row=0, column=1, pady=5)
+        license_plate_entry.focus_set()
+
+        submit_button = tk.Button(new_window, text="Soumettre",
+                                  command=lambda: self.set_client_plate_number(new_window, license_plate_entry))
+        submit_button.pack()
+
+        self.root.wait_window(new_window)
+
+    def set_client_plate_number(self, window, license_plate_entry):
+        self.client_license_plate = license_plate_entry.get()
+        self.close_new_window(window)
+
+
+
 
 #GUI()
