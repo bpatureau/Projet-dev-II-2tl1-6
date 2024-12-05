@@ -144,7 +144,8 @@ class GUI:
         subscriber_title_label = tk.Label(self.subscriber_tab, text="Gestionnaire des Abonnements", font=("Arial", 20))
         subscriber_title_label.pack(pady=10)
 
-        # Search bar for the subscribers
+        # Search bar for the subscribers by plate number
+        tk.Label(self.subscriber_tab, text="Recherche est fait par plaque d'immatriculation :").pack()
         self.search_entry = tk.Entry(self.subscriber_tab)
         self.search_entry.pack(pady=10)
 
@@ -173,7 +174,7 @@ class GUI:
         for v in self.parking.prime_vehicles:   # v = vehicle
             owner = v.owner
             data.append((v.licence_plate, owner.first_name, owner.last_name, owner.email, "Voiture Mensuel",
-                         v.subscription_end, "Parking RDCA1"))
+                         v.subscription_end, "Parking RA1"))
 
         # Insertion of the data
         for row in data:
@@ -222,7 +223,7 @@ class GUI:
 
         found = False
         for item in self.subscriber_tree.get_children():
-            if search_term.lower() in self.subscriber_tree.item(item)['values'][3].lower():
+            if search_term.lower() in self.subscriber_tree.item(item)['values'][0].lower():
                 self.subscriber_tree.selection_set(item)
                 self.subscriber_tree.focus(item)
                 item_id = self.subscriber_tree.get_children().index(item)
