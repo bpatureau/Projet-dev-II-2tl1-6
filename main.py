@@ -80,11 +80,9 @@ def manage_parking(parking, vehicles):
             vehicule: est un objet
         post:permet d'ajouter, de retirer, de prendre les infos du parkings ou afficher la répartion des palces sur les différents étages.
     """
-    action = input("Entrée (e)/ sortie (s)/ info (i)/ afficher étages (p) : ")
+    action = input("Entrée (e)/ sortie (s)/ info (i) : ")
     if action == "i":
         print(parking)
-    elif action == "p":
-        parking.print_parking()
     else:
         plaque = input("Plaque d'immatriculation du véhicule : ")
         vehicle = None
@@ -112,7 +110,6 @@ def reset_parking():
         print("Veuillez entrer des nombres entiers")
     else:
         new_parking = Parking(nbr_spot, price, nbr_floor)
-        new_parking.print_parking()
         with open("data.pickle", "wb") as f:
             pickle.dump(new_parking, f, protocol=pickle.HIGHEST_PROTOCOL)
         return new_parking
@@ -179,7 +176,6 @@ def main():
 
     finally:
         if not filename_error:
-            print("test")
             with open("data.pickle", "wb") as f:
                 pickle.dump(parking, f, protocol=pickle.HIGHEST_PROTOCOL)
 

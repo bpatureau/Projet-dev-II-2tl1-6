@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from datetime import datetime
 
 from vehicle import Vehicle, Owner
 
@@ -243,8 +244,9 @@ class GUI:
         place = self.parking.find_place(form_data["selected_place"])
         place.switch_state()
         new_vehicle.reserved_place = place
+        self.parking.prime_vehicles.add(new_vehicle)
         data = [form_data["first_name"], form_data["last_name"], form_data["email"], form_data["license_plate"],
-                "Voiture Mensuel", new_vehicle.subscription_end]
+                "Voiture Mensuel", new_vehicle.subscription_end, place]
         self.subscriber_tree.insert("", "end", values=data)
 
     def add_subscriber_window(self):
@@ -305,7 +307,7 @@ class GUI:
         places = []
         for z in self.parking.parking[0].display:
             for p in z:
-                if p.premium and p.is_free():
+                if p.is_free():
                     places.append(str(p))
         place_var = tk.StringVar(value=places[0])
         place_menu = ttk.Combobox(form_frame, textvariable=place_var, values=places, state="readonly")
@@ -331,11 +333,27 @@ class GUI:
         # Return the collected form data
         return form_data
 
-    def collect_form_data_and_close(self, license_plate, first_name, last_name, email, duration, place, form_data,
-                                    window):
+    def collect_form_data_and_close(self, license_plate, first_name, last_name, email, duration, place, form_data, window):
         """
-        Collects form data and stores it in the provided dictionary, then closes the window.
+        Validates and collects form data. If any field is missing, it shows an error message.
         """
+        # Validation: Check for empty fields
+        if not license_plate.strip():
+            messagebox.showerror("Validation Error", "License Plate is required!")
+            return
+        if not first_name.strip():
+            messagebox.showerror("Validation Error", "First Name is required!")
+            return
+        if not last_name.strip():
+            messagebox.showerror("Validation Error", "Last Name is required!")
+            return
+        if not email.strip():
+            messagebox.showerror("Validation Error", "Email is required!")
+            return
+        if not place.strip():
+            messagebox.showerror("Validation Error", "Place is required!")
+            return
+
         # Store form data
         form_data.update({
             "license_plate": license_plate,
@@ -346,12 +364,12 @@ class GUI:
             "selected_place": place
         })
 
-        # Show a success message
-        messagebox.showinfo("Formulaire soumis",
-                            f"L'abonnement du véhicule {form_data['license_plate']} a été ajouté \n")
+        # Show a success message (optional)
+        messagebox.showinfo("Form Submitted", "Le véhicule est maintenant abonné")
 
         # Close the new window and re-enable the main window
         self.close_new_window(window)
+
 
     def close_new_window(self, new_window):
         """
@@ -362,10 +380,23 @@ class GUI:
         new_window.destroy()
 
     def client_entry(self):
+        start_time = datetime.now()
+        licence_plate = self.search_entry.get().strip()
+        print(licence_plate)
+        self.parking.add_vehicle(Vehicle(licence_plate))
         self.client_entry_exit_base_window()
+        messagebox.showinfo("ENTREE", f"Le véhicule immatriculé {licence_plate} est rentré le {start_time.strftime('%d/%m/%Y')} à {start_time.strftime('%H:%M')}, il reste {self.parking.nbr_parking_spot_free} place dans le parking")
 
     def client_exit(self):
-        self.client_entry_exit_base_window(exit=True)
+        try:
+            start_time = datetime.now()
+            licence_plate = self.search_entry.get().strip()
+            self.parking.remove_vehicle(licence_plate)
+            messagebox.showinfo("SORTIE", f"Le véhicule immatriculé {licence_plate} est sorti le {start_time.strftime('%d/%m/%Y')} à {start_time.strftime('%H:%M')}, il reste {self.parking.nbr_parking_spot_free} place dans le parking")
+        except KeyError:
+            messagebox.showinfo("ERREUR", "Le véhicle n'as pas été trouvé dans le parking")
+        finally:
+            self.client_entry_exit_base_window(exit=True)
 
     def client_entry_exit_base_window(self, exit=False):
         client_license_plate = ""
@@ -396,6 +427,3 @@ class GUI:
         self.close_new_window(window)
 
 
-
-
-#GUI()

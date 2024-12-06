@@ -37,15 +37,6 @@ class Floor:
                     zone.append(Node((location + chr(i+65) + str(j))))
             self.display.append(zone)
 
-    def __str__(self):
-        res = "  0 1 2 3 4 5 6 7 8 9\n"
-        for n, zone in enumerate(self.display):
-            res += chr(n+65) + " "
-            for j in zone:
-                res += repr(j) + " "
-            res += "\n"
-        return res
-
     def __getitem__(self, item):
         return self.display[item]
 
@@ -92,11 +83,6 @@ class Parking:
         for i in range(nbr_floor):
             parking.append(Floor(i, 10, 5))
         return parking
-
-
-    def print_parking(self):
-        for i in self.parking:
-            print(i)
 
 
     def find_place(self, place: str):
@@ -149,11 +135,12 @@ class Parking:
         print(
             f"Le véhicule immatriculé {vehicle.licence_plate} est rentré le {vehicle.start_time.strftime('%d/%m/%Y')} à {vehicle.start_time.strftime('%H:%M')}, il reste {self.nbr_parking_spot_free} place dans le parking")
 
-    def remove_vehicle(self, vehicle):
+    def remove_vehicle(self, license_plate):
         """
         Retire un véhicule du parking
         :param vehicle: le véhicule qui s'en va
         """
+        vehicle = self.find_vehicle(license_plate)
         now = datetime.now()
         if vehicle.still_subscribed():
             return print(f"Le véhicule immatriculé {vehicle.licence_plate} est sorti le {now.strftime('%d/%m/%Y')} à {now.strftime('%H:%M')}. Ce véhicule est abonné et ne paye donc pas le tarif")
@@ -198,3 +185,10 @@ class Parking:
                 print("Suppression annulée")
         return False
 
+    def find_vehicle(self, license_plate):
+        vehicle = None
+        for v in self.vehicles:
+            print(v)
+            if v.license_plate == license_plate:
+                return v
+        raise KeyError
