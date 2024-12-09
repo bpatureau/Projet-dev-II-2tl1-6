@@ -142,46 +142,48 @@ class GUI:
         self._create_parking_overview()
 
     def _create_subscriber_tab_content(self):
-        subscriber_title_label = tk.Label(self.subscriber_tab, text="Gestionnaire des Abonnements", font=("Arial", 20))
-        subscriber_title_label.pack(pady=10)
+    subscriber_title_label = tk.Label(self.subscriber_tab, text="Gestionnaire des Abonnements", font=("Arial", 20))
+    subscriber_title_label.pack(pady=10)
 
-        # Search bar for the subscribers by plate number
-        tk.Label(self.subscriber_tab, text="Recherche est fait par plaque d'immatriculation :").pack()
-        self.search_entry = tk.Entry(self.subscriber_tab)
-        self.search_entry.pack(pady=10)
+    # Search bar for the subscribers by plate number
+    tk.Label(self.subscriber_tab, text="Recherche est fait par plaque d'immatriculation :").pack()
+    self.search_entry = tk.Entry(self.subscriber_tab)
+    self.search_entry.pack(pady=10)
 
-        subscriber_top_button_frame = tk.Frame(self.subscriber_tab)
-        subscriber_top_button_frame.pack()
+    subscriber_top_button_frame = tk.Frame(self.subscriber_tab)
+    subscriber_top_button_frame.pack()
 
-        self.subscriber_search_button = tk.Button(subscriber_top_button_frame, text="Rechercher", command=self.search_subscriber)
-        self.subscriber_search_button.pack(side=tk.LEFT, padx=5, pady=5)
+    self.subscriber_search_button = tk.Button(subscriber_top_button_frame, text="Rechercher", command=self.search_subscriber)
+    self.subscriber_search_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter", command=self.add_subscriber)
-        self.subscriber_add_button.pack(side=tk.LEFT, padx=5, pady=5)
+    self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter", command=self.add_subscriber)
+    self.subscriber_add_button.pack(side=tk.LEFT, padx=5, pady=5)
 
+    # Create the Treeview for subscribers
+    columns = ("Plaque", "Nom", "Prénom", "Mail", "Type d'abo", "Expiration", "Place de parking réservée")
+    self.subscriber_tree = ttk.Treeview(self.subscriber_tab, columns=columns, show="headings")
 
-        # Create the Treeview for subscribers
-        columns = ("Plaque", "Nom", "Prénom", "Mail", "Type d'abo", "Expiration", "Place de parking réservée")
-        self.subscriber_tree = ttk.Treeview(self.subscriber_tab, columns=columns, show="headings")
+    # Configure columns and make all of them sortable
+    for column in columns:
+        self.subscriber_tree.heading(column, text=column,
+                                     command=lambda _col=column:
+                                     self._sort_by_column(self.subscriber_tree, _col, False))
 
-        # Configure columns and make all of them sortable
-        for column in columns:
-            self.subscriber_tree.heading(column, text=column,
-                                         command=lambda _col=column:
-                                         self._sort_by_column(self.subscriber_tree,_col,False))
+    # Collection of the data
+    data = []
+    for v in self.parking.prime_vehicles:  # v = vehicle
+        owner = v.owner
+        data.append((v.license_plate, owner.first_name, owner.last_name, owner.email,
+                     "Voiture Mensuel" if isinstance(v, Car) else "Moto Mensuel",
+                     v.subscription_end.strftime("%d/%m/%Y") if v.subscription_end else "Non défini",
+                     v.reserved_place if v.reserved_place else "Aucune"))
 
-        # Collection of the data
-        data = []
-        for v in self.parking.prime_vehicles:   # v = vehicle
-            owner = v.owner
-            data.append((v.licence_plate, owner.first_name, owner.last_name, owner.email, "Voiture Mensuel",
-                         v.subscription_end, "Parking RA1"))
+    # Insertion of the data
+    for row in data:
+        self.subscriber_tree.insert("", "end", values=row)
 
-        # Insertion of the data
-        for row in data:
-            self.subscriber_tree.insert("", "end", values=row)
+    self.subscriber_tree.pack(fill="both", expand=True)
 
-        self.subscriber_tree.pack(fill="both", expand=True)
 
     def _sort_by_column(self, tv, col, reverse):
         """
