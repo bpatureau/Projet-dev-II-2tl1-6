@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 
-from vehicle import Vehicle, Owner
+from NewVehicule import Vehicle, Owner, Car, Motorcycle
 
 
 class GUI:
@@ -235,18 +235,25 @@ class GUI:
         if not found:
             messagebox.showinfo("Recherche", "Aucun abonné trouvé avec cette plaque.")
 
-
     def add_subscriber(self):
         form_data = self.add_subscriber_window()
         owner = Owner(form_data["first_name"], form_data["last_name"], form_data["email"])
         sub_time = (1 if form_data["subscription_duration"] == "Month" else 12)
-        new_vehicle = Vehicle(form_data["license_plate"], owner, True, sub_time, self.parking)
+
+        # Créez un véhicule en fonction du type choisi
+        if form_data["vehicle_type"] == "Car":
+            new_vehicle = Car(form_data["license_plate"], owner, True, sub_time, self.parking)
+        else:
+            new_vehicle = Motorcycle(form_data["license_plate"], owner, True, sub_time, self.parking)
+
         place = self.parking.find_place(form_data["selected_place"])
         place.switch_state()
         new_vehicle.reserved_place = place
         self.parking.prime_vehicles.add(new_vehicle)
+
         data = [form_data["first_name"], form_data["last_name"], form_data["email"], form_data["license_plate"],
-                "Voiture Mensuel", new_vehicle.subscription_end, place]
+                "Voiture Mensuel" if form_data["vehicle_type"] == "Car" else "Moto Mensuel",
+                new_vehicle.subscription_end, place]
         self.subscriber_tree.insert("", "end", values=data)
 
     def add_subscriber_window(self):
@@ -301,9 +308,16 @@ class GUI:
         tk.Radiobutton(form_frame, text="1 an", variable=subscription_var, value="Year").grid(row=4, column=1,
                                                                                               sticky="e")
 
+        # Vehicle Type (Radio Buttons)
+        tk.Label(form_frame, text="Type de véhicule :").grid(row=5, column=0, sticky="w", pady=5)
+        vehicle_type_var = tk.StringVar(value="Car")  # Default to "Car"
+        tk.Radiobutton(form_frame, text="Voiture", variable=vehicle_type_var, value="Car").grid(row=5, column=1,
+                                                                                                sticky="w")
+        tk.Radiobutton(form_frame, text="Moto", variable=vehicle_type_var, value="Motorcycle").grid(row=5, column=1,
+                                                                                                    sticky="e")
 
         # Select Place (Dropdown)
-        tk.Label(form_frame, text="Place de parking réservée").grid(row=5, column=0, sticky="w", pady=5)
+        tk.Label(form_frame, text="Place de parking réservée").grid(row=6, column=0, sticky="w", pady=5)
         places = []
         for z in self.parking.parking[0].display:
             for p in z:
@@ -311,8 +325,7 @@ class GUI:
                     places.append(str(p))
         place_var = tk.StringVar(value=places[0])
         place_menu = ttk.Combobox(form_frame, textvariable=place_var, values=places, state="readonly")
-        place_menu.grid(row=5, column=1, pady=5)
-        print(place_var)
+        place_menu.grid(row=6, column=1, pady=5)
 
         # Submit Button
         submit_button = tk.Button(new_window, text="Soumettre", command=lambda: self.collect_form_data_and_close(
@@ -321,9 +334,10 @@ class GUI:
             last_name_entry.get(),
             email_entry.get(),
             subscription_var.get(),
+            vehicle_type_var.get(),  # Passez ici la sélection de type de véhicule
             place_var.get(),
             form_data,
-            new_window
+            new_window  # Passez également l'argument `window`
         ))
         submit_button.pack(pady=10)
 
@@ -333,7 +347,8 @@ class GUI:
         # Return the collected form data
         return form_data
 
-    def collect_form_data_and_close(self, license_plate, first_name, last_name, email, duration, place, form_data, window):
+    def collect_form_data_and_close(self, license_plate, first_name, last_name, email, duration, vehicle_type, place,
+                                    form_data, window):
         """
         Validates and collects form data. If any field is missing, it shows an error message.
         """
@@ -361,15 +376,15 @@ class GUI:
             "last_name": last_name,
             "email": email,
             "subscription_duration": duration,
+            "vehicle_type": vehicle_type,
             "selected_place": place
         })
 
         # Show a success message (optional)
-        messagebox.showinfo("Form Submitted", "Le véhicule est maintenant abonné")
+        messagebox.showinfo("Form Submitted", f"Le véhicule {vehicle_type} est maintenant abonné")
 
         # Close the new window and re-enable the main window
         self.close_new_window(window)
-
 
     def close_new_window(self, new_window):
         """
@@ -425,5 +440,3 @@ class GUI:
     def set_client_plate_number(self, window, license_plate_entry):
         self.client_license_plate = license_plate_entry.get()
         self.close_new_window(window)
-
-
