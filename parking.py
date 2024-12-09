@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from vehicle import Car, Motorcycle
 
 class Node:
     def __init__(self, location: str, premium = False, two_wheels = False):
@@ -89,7 +89,7 @@ class Parking:
         """
         pre:
             place est un string qui permet de savoir quelle type de vehicule rentre dans le parking
-        post:nous indique quelle est la premiere place disponible 
+        post:nous indique quelle est la premiere place disponible
         """
         if place[0].upper() == "R":
             place = "0" + place[1:]
@@ -123,17 +123,31 @@ class Parking:
 
     def add_vehicle(self, vehicle):
         """
-        rajoute un véhicule dans le parking
-        :param vehicle: le véhicule à rajouter
+        Ajoute un véhicule au parking après avoir vérifié son type.
+        :param vehicle: le véhicule à rajouter (Car ou Motorcycle)
         """
-        if vehicle in self.vehicles:
-            print("le véhicule est déjà dans le parking")
+        if self.is_vehicle_present(vehicle.license_plate):
+            print(f"Le véhicule immatriculé {vehicle.license_plate} est déjà dans le parking.")
             return None
+
         self.vehicles.append(vehicle)
         self.nbr_parking_spot_free -= 1
         vehicle.start_time = datetime.now()
-        print(
-            f"Le véhicule immatriculé {vehicle.licence_plate} est rentré le {vehicle.start_time.strftime('%d/%m/%Y')} à {vehicle.start_time.strftime('%H:%M')}, il reste {self.nbr_parking_spot_free} place dans le parking")
+
+        if isinstance(vehicle, Car):
+            print(
+                f"La voiture immatriculée {vehicle.license_plate} est entrée le {vehicle.start_time.strftime('%d/%m/%Y')} "
+                f"à {vehicle.start_time.strftime('%H:%M')}. Il reste {self.nbr_parking_spot_free} places disponibles."
+            )
+        elif isinstance(vehicle, Motorcycle):
+            print(
+                f"La moto immatriculée {vehicle.license_plate} est entrée le {vehicle.start_time.strftime('%d/%m/%Y')} "
+                f"à {vehicle.start_time.strftime('%H:%M')}. Il reste {self.nbr_parking_spot_free} places disponibles."
+            )
+        else:
+            print(f"Véhicule non reconnu, immatriculé {vehicle.license_plate}.")
+
+        return vehicle
 
     def remove_vehicle(self, license_plate):
         """
@@ -192,3 +206,11 @@ class Parking:
             if v.license_plate == license_plate:
                 return v
         raise KeyError
+
+    def is_vehicle_present(self, license_plate):
+        """
+        Vérifie si un véhicule est déjà présent dans le parking.
+        :param license_plate: La plaque d'immatriculation à vérifier.
+        :return: True si le véhicule est présent, sinon False.
+        """
+        return any(v.license_plate == license_plate for v in self.vehicles)
