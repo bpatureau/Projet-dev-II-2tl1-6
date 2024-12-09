@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 
-from NewVehicule import Vehicle, Owner, Car, Motorcycle
+from vehicle import Vehicle, Owner, Car, Motorcycle
 
 
 class GUI:
@@ -144,32 +144,29 @@ class GUI:
     def _create_subscriber_tab_content(self):
         subscriber_title_label = tk.Label(self.subscriber_tab, text="Gestionnaire des Abonnements", font=("Arial", 20))
         subscriber_title_label.pack(pady=10)
-    
-        # Search bar for the subscribers by plate number
+
+        
         tk.Label(self.subscriber_tab, text="Recherche est fait par plaque d'immatriculation :").pack()
         self.search_entry = tk.Entry(self.subscriber_tab)
         self.search_entry.pack(pady=10)
-    
+
         subscriber_top_button_frame = tk.Frame(self.subscriber_tab)
         subscriber_top_button_frame.pack()
-    
+
         self.subscriber_search_button = tk.Button(subscriber_top_button_frame, text="Rechercher", command=self.search_subscriber)
         self.subscriber_search_button.pack(side=tk.LEFT, padx=5, pady=5)
-    
+
         self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter", command=self.add_subscriber)
         self.subscriber_add_button.pack(side=tk.LEFT, padx=5, pady=5)
-    
-        # Create the Treeview for subscribers
+
         columns = ("Plaque", "Nom", "Prénom", "Mail", "Type d'abo", "Expiration", "Place de parking réservée")
         self.subscriber_tree = ttk.Treeview(self.subscriber_tab, columns=columns, show="headings")
-    
-        # Configure columns and make all of them sortable
+
         for column in columns:
             self.subscriber_tree.heading(column, text=column,
                                          command=lambda _col=column:
                                          self._sort_by_column(self.subscriber_tree, _col, False))
-    
-        # Collection of the data
+
         data = []
         for v in self.parking.prime_vehicles:  # v = vehicle
             owner = v.owner
@@ -177,11 +174,10 @@ class GUI:
                          "Voiture Mensuel" if isinstance(v, Car) else "Moto Mensuel",
                          v.subscription_end.strftime("%d/%m/%Y") if v.subscription_end else "Non défini",
                          v.reserved_place if v.reserved_place else "Aucune"))
-    
-        # Insertion of the data
+
         for row in data:
             self.subscriber_tree.insert("", "end", values=row)
-    
+
         self.subscriber_tree.pack(fill="both", expand=True)
 
 
@@ -242,7 +238,6 @@ class GUI:
         owner = Owner(form_data["first_name"], form_data["last_name"], form_data["email"])
         sub_time = (1 if form_data["subscription_duration"] == "Month" else 12)
 
-        # Créez un véhicule en fonction du type choisi
         if form_data["vehicle_type"] == "Car":
             new_vehicle = Car(form_data["license_plate"], owner, True, sub_time, self.parking)
         else:
@@ -263,25 +258,20 @@ class GUI:
         Opens a new window for subscribing a vehicle.
         Returns the data submitted via the form.
         """
-        # Data container
         form_data = {}
 
-        # Create a new top-level window
         new_window = tk.Toplevel(self.root)
         new_window.title("Ajouter un abonné")
         self.center_window(new_window)
 
-        # Disable the main window
         self.root.attributes("-disabled", True)
         new_window.grab_set()
 
         new_window.protocol("WM_DELETE_WINDOW", lambda: self.close_new_window(new_window))
 
-        # Form Labels and Entry Fields
         form_frame = tk.Frame(new_window, padx=10, pady=10)
         form_frame.pack()
 
-        # License Plate
         tk.Label(form_frame, text="Plaque d'immatriculation :").grid(row=0, column=0, sticky="w", pady=5)
         license_plate_entry = tk.Entry(form_frame, width=30)
         license_plate_entry.grid(row=0, column=1, pady=5)
@@ -397,23 +387,102 @@ class GUI:
         new_window.destroy()
 
     def client_entry(self):
+        """
+        Gère l'entrée d'un véhicule dans le parking.
+        Demande à l'utilisateur de saisir une plaque d'immatriculation et de sélectionner le type de véhicule.
+        """
+        entry_window = tk.Toplevel(self.root)
+        entry_window.title("Entrée d'un véhicule")
+        self.center_window(entry_window)
+
+        self.root.attributes("-disabled", True)
+        entry_window.grab_set()
+
+        tk.Label(entry_window, text="Plaque d'immatriculation :").pack(pady=5)
+        license_plate_entry = tk.Entry(entry_window, width=30)
+        license_plate_entry.pack(pady=5)
+        license_plate_entry.focus_set()
+
+        tk.Label(entry_window, text="Type de véhicule :").pack(pady=5)
+        vehicle_type_var = tk.StringVar(value="Car")  # Par défaut : Voiture
+        tk.Radiobutton(entry_window, text="Voiture", variable=vehicle_type_var, value="Car").pack(pady=2)
+        tk.Radiobutton(entry_window, text="Moto", variable=vehicle_type_var, value="Motorcycle").pack(pady=2)
+
+        submit_button = tk.Button(
+            entry_window,
+            text="Soumettre",
+            command=lambda: self.validate_entry(license_plate_entry.get(), vehicle_type_var.get(), entry_window)
+        )
+        submit_button.pack(pady=10)
+
+        entry_window.protocol("WM_DELETE_WINDOW", lambda: self.close_new_window(entry_window))
+
+        self.root.wait_window(entry_window)
+
+    def validate_entry(self, license_plate, vehicle_type, entry_window):
+        """
+        Valide l'entrée du véhicule en fonction de sa plaque et de son type.
+        """
+        if not license_plate.strip():
+            messagebox.showerror("Erreur", "Veuillez entrer une plaque d'immatriculation.")
+            return
+
+        if self.parking.is_vehicle_present(license_plate):
+            messagebox.showerror("Erreur", "Le véhicule est déjà dans le parking.")
+            self.close_new_window(entry_window)
+            return
+
+        if vehicle_type == "Car":
+            vehicle = Car(license_plate)  # Pas besoin de wheels ici
+        elif vehicle_type == "Motorcycle":
+            vehicle = Motorcycle(license_plate)  # Pas besoin de wheels ici
+        else:
+            messagebox.showerror("Erreur", "Type de véhicule invalide.")
+            return
+
         start_time = datetime.now()
-        licence_plate = self.search_entry.get().strip()
-        print(licence_plate)
-        self.parking.add_vehicle(Vehicle(licence_plate))
-        self.client_entry_exit_base_window()
-        messagebox.showinfo("ENTREE", f"Le véhicule immatriculé {licence_plate} est rentré le {start_time.strftime('%d/%m/%Y')} à {start_time.strftime('%H:%M')}, il reste {self.parking.nbr_parking_spot_free} place dans le parking")
+        vehicle.start_time = start_time
+        self.parking.add_vehicle(vehicle)
+
+        messagebox.showinfo(
+            "Entrée réussie",
+            f"Le véhicule {vehicle_type} immatriculé {license_plate} est entré à {start_time.strftime('%H:%M')}."
+        )
+        self.close_new_window(entry_window)
+
+    def close_new_window(self, window):
+        """
+        Ferme une fenêtre contextuelle et réactive la fenêtre principale.
+        """
+        self.root.attributes("-disabled", False)
+        window.grab_release()
+        window.destroy()
+
 
     def client_exit(self):
-        try:
-            start_time = datetime.now()
-            licence_plate = self.search_entry.get().strip()
-            self.parking.remove_vehicle(licence_plate)
-            messagebox.showinfo("SORTIE", f"Le véhicule immatriculé {licence_plate} est sorti le {start_time.strftime('%d/%m/%Y')} à {start_time.strftime('%H:%M')}, il reste {self.parking.nbr_parking_spot_free} place dans le parking")
-        except KeyError:
-            messagebox.showinfo("ERREUR", "Le véhicle n'as pas été trouvé dans le parking")
-        finally:
-            self.client_entry_exit_base_window(exit=True)
+        license_plate = self.search_entry.get().strip()
+        if not license_plate:
+            messagebox.showerror("Erreur", "Veuillez entrer une plaque d'immatriculation.")
+            return
+
+        vehicle = self.parking.find_vehicle(license_plate)
+        if not vehicle:
+            messagebox.showerror("Erreur", "Le véhicule n'est pas trouvé dans le parking.")
+            return
+
+        end_time = datetime.now()
+        duration = (end_time - vehicle.start_time).total_seconds() / 3600  # Convertit en heures
+        hourly_rate = 2.0  # Exemple de tarif horaire
+        amount_due = round(duration * hourly_rate, 2)
+
+        self.parking.remove_vehicle(license_plate)
+
+        messagebox.showinfo(
+            "Sortie réussie",
+            f"Le véhicule immatriculé {license_plate} a quitté le parking.\n"
+            f"Durée : {duration:.2f} heures\n"
+            f"Montant à payer : {amount_due:.2f} €"
+        )
 
     def client_entry_exit_base_window(self, exit=False):
         client_license_plate = ""
