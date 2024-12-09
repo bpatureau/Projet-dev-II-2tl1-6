@@ -64,7 +64,6 @@ Lors du lancement du programme, ce fichier est utilisé pour charger l'objet par
 
 ### Majeures
 
-+ Les véhicules 2 roues (tarifs, abonnement, places 2 roues,...)
 + Terminer l'interface graphique (voir [Interface graphique](#interface-graphique) pour la présentation ou [GUI](#gui) pour ce qu'il faut implémenter)
 + ${\textsf{\color{orange}Transférer la boucle while True du main (le MVP) dans les différentes classes (Vehicle, Parking, GUI)}}$
 
@@ -77,8 +76,8 @@ Lors du lancement du programme, ce fichier est utilisé pour charger l'objet par
 ### GUI
 
 + Permettre de réserver des places (idéalement dans le form lors d'un abonnement et/ou en cliquant sur la place voulu)
-+ ${\textsf{\color{red}Rajouter une voiture sans abonnement dans le parking}}$
-+ ${\textsf{\color{red}Sortir une voiture sans abonnement et afficher le montant à payer}}$
++ ${\textsf{\color{red}Rajouter une voiture sans abonnement dans le parking}}$ en developpement par Théo
++ ${\textsf{\color{red}Sortir une voiture sans abonnement et afficher le montant à payer}}$ en developpement par Théo
 + Alerte lorsque le parking est presque plein via fenêtre pop-up
 + Afficher le résumer de la journée dans le tab dédié
 + Colorer les places réservées (et 2-roues)
