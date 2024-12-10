@@ -459,30 +459,74 @@ class GUI:
         window.destroy()
 
 
-    def client_exit(self):
-        license_plate = self.search_entry.get().strip()
-        if not license_plate:
+        def client_exit(self):
+        """
+        Gère la sortie d'un véhicule du parking.
+        """
+        exit_window = tk.Toplevel(self.root)
+        exit_window.title("Sortie d'un véhicule")
+        self.center_window(exit_window)
+
+        self.root.attributes("-disabled", True)
+        exit_window.grab_set()
+
+        tk.Label(exit_window, text="Plaque d'immatriculation :").pack(pady=5)
+        license_plate_entry = tk.Entry(exit_window, width=30)
+        license_plate_entry.pack(pady=5)
+        license_plate_entry.focus_set()
+
+        submit_button = tk.Button(
+            exit_window,
+            text="Soumettre",
+            command=lambda: self.validate_exit(license_plate_entry.get(), exit_window)
+        )
+        submit_button.pack(pady=10)
+
+        exit_window.protocol("WM_DELETE_WINDOW", lambda: self.close_new_window(exit_window))
+
+        self.root.wait_window(exit_window)
+
+    def validate_exit(self, license_plate, exit_window):
+        """
+        Valide la sortie d'un véhicule du parking.
+        :param license_plate: La plaque d'immatriculation saisie.
+        :param exit_window: La fenêtre de sortie.
+        """
+        if not license_plate.strip():
             messagebox.showerror("Erreur", "Veuillez entrer une plaque d'immatriculation.")
             return
 
-        vehicle = self.parking.find_vehicle(license_plate)
-        if not vehicle:
-            messagebox.showerror("Erreur", "Le véhicule n'est pas trouvé dans le parking.")
-            return
+        try:
+            # ne fonctionne pas, surement pcq en sortie on ne verifie pas le difference entre moto et voiture
+            vehicle = self.parking.find_vehicle(license_plate)
 
-        end_time = datetime.now()
-        duration = (end_time - vehicle.start_time).total_seconds() / 3600  # Convertit en heures
-        hourly_rate = 2.0  # Exemple de tarif horaire
-        amount_due = round(duration * hourly_rate, 2)
+            # ne fonctionne pas
+            if vehicle.still_subscribed():
+                messagebox.showinfo(
+                    "Sortie réussie",
+                    f"Le véhicule immatriculé {license_plate} a quitté le parking. "
+                    f"Aucun montant n'est dû car le véhicule est abonné."
+                )
+            else:
+                end_time = datetime.now()
+                duration = (end_time - vehicle.start_time).total_seconds() / 3600  # Convertit en heures
+                hourly_rate = self.parking.get_price()
+                amount_due = round(duration * hourly_rate, 2)
 
-        self.parking.remove_vehicle(license_plate)
+                messagebox.showinfo(
+                    "Sortie réussie",
+                    f"Le véhicule immatriculé {license_plate} a quitté le parking.\n"
+                    f"Durée : {duration:.2f} heures\n"
+                    f"Montant à payer : {amount_due:.2f} €"
+                )
 
-        messagebox.showinfo(
-            "Sortie réussie",
-            f"Le véhicule immatriculé {license_plate} a quitté le parking.\n"
-            f"Durée : {duration:.2f} heures\n"
-            f"Montant à payer : {amount_due:.2f} €"
-        )
+            self.parking.remove_vehicle(license_plate)
+
+        except KeyError:
+            messagebox.showerror("Erreur", f"Aucun véhicule trouvé avec la plaque {license_plate}.")
+
+        finally:
+            self.close_new_window(exit_window)
 
     def client_entry_exit_base_window(self, exit=False):
         client_license_plate = ""
