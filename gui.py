@@ -145,7 +145,7 @@ class GUI:
         subscriber_title_label = tk.Label(self.subscriber_tab, text="Gestionnaire des Abonnements", font=("Arial", 20))
         subscriber_title_label.pack(pady=10)
 
-        
+        # Search bar for the subscribers by plate number
         tk.Label(self.subscriber_tab, text="Recherche est fait par plaque d'immatriculation :").pack()
         self.search_entry = tk.Entry(self.subscriber_tab)
         self.search_entry.pack(pady=10)
@@ -159,14 +159,17 @@ class GUI:
         self.subscriber_add_button = tk.Button(subscriber_top_button_frame, text="Ajouter", command=self.add_subscriber)
         self.subscriber_add_button.pack(side=tk.LEFT, padx=5, pady=5)
 
+        # Create the Treeview for subscribers
         columns = ("Plaque", "Nom", "Prénom", "Mail", "Type d'abo", "Expiration", "Place de parking réservée")
         self.subscriber_tree = ttk.Treeview(self.subscriber_tab, columns=columns, show="headings")
 
+        # Configure columns and make all of them sortable
         for column in columns:
             self.subscriber_tree.heading(column, text=column,
                                          command=lambda _col=column:
                                          self._sort_by_column(self.subscriber_tree, _col, False))
 
+        # Collection of the data
         data = []
         for v in self.parking.prime_vehicles:  # v = vehicle
             owner = v.owner
@@ -175,6 +178,7 @@ class GUI:
                          v.subscription_end.strftime("%d/%m/%Y") if v.subscription_end else "Non défini",
                          v.reserved_place if v.reserved_place else "Aucune"))
 
+        # Insertion of the data
         for row in data:
             self.subscriber_tree.insert("", "end", values=row)
 
@@ -236,21 +240,35 @@ class GUI:
     def add_subscriber(self):
         form_data = self.add_subscriber_window()
         owner = Owner(form_data["first_name"], form_data["last_name"], form_data["email"])
-        sub_time = (1 if form_data["subscription_duration"] == "Month" else 12)
 
+        # Déterminez la durée de l'abonnement
+        sub_time = 1 if form_data["subscription_duration"] == "Month" else 12
+
+        # Créez un véhicule en fonction du type choisi
         if form_data["vehicle_type"] == "Car":
             new_vehicle = Car(form_data["license_plate"], owner, True, sub_time, self.parking)
         else:
             new_vehicle = Motorcycle(form_data["license_plate"], owner, True, sub_time, self.parking)
 
+        # Attribuez une place de parking
         place = self.parking.find_place(form_data["selected_place"])
         place.switch_state()
         new_vehicle.reserved_place = place
         self.parking.prime_vehicles.add(new_vehicle)
 
-        data = [form_data["first_name"], form_data["last_name"], form_data["email"], form_data["license_plate"],
-                "Voiture Mensuel" if form_data["vehicle_type"] == "Car" else "Moto Mensuel",
-                new_vehicle.subscription_end, place]
+        # Déterminez le type d'abonnement (Mensuel ou Annuel)
+        subscription_type = "Mensuel" if sub_time == 1 else "Annuel"
+
+        # Ajoutez les données dans le tableau
+        data = [
+            form_data["license_plate"],
+            form_data["first_name"],
+            form_data["last_name"],
+            form_data["email"],
+            f"{form_data['vehicle_type']} {subscription_type}",
+            new_vehicle.subscription_end.strftime("%d/%m/%Y") if new_vehicle.subscription_end else "Non défini",
+            str(place)
+        ]
         self.subscriber_tree.insert("", "end", values=data)
 
     def add_subscriber_window(self):
@@ -258,20 +276,25 @@ class GUI:
         Opens a new window for subscribing a vehicle.
         Returns the data submitted via the form.
         """
+        # Data container
         form_data = {}
 
+        # Create a new top-level window
         new_window = tk.Toplevel(self.root)
         new_window.title("Ajouter un abonné")
         self.center_window(new_window)
 
+        # Disable the main window
         self.root.attributes("-disabled", True)
         new_window.grab_set()
 
         new_window.protocol("WM_DELETE_WINDOW", lambda: self.close_new_window(new_window))
 
+        # Form Labels and Entry Fields
         form_frame = tk.Frame(new_window, padx=10, pady=10)
         form_frame.pack()
 
+        # License Plate
         tk.Label(form_frame, text="Plaque d'immatriculation :").grid(row=0, column=0, sticky="w", pady=5)
         license_plate_entry = tk.Entry(form_frame, width=30)
         license_plate_entry.grid(row=0, column=1, pady=5)
@@ -391,23 +414,28 @@ class GUI:
         Gère l'entrée d'un véhicule dans le parking.
         Demande à l'utilisateur de saisir une plaque d'immatriculation et de sélectionner le type de véhicule.
         """
+        # Crée une nouvelle fenêtre pour demander les informations
         entry_window = tk.Toplevel(self.root)
         entry_window.title("Entrée d'un véhicule")
         self.center_window(entry_window)
 
+        # Désactive la fenêtre principale pendant l'ouverture
         self.root.attributes("-disabled", True)
         entry_window.grab_set()
 
+        # Étiquette et champ de saisie pour la plaque
         tk.Label(entry_window, text="Plaque d'immatriculation :").pack(pady=5)
         license_plate_entry = tk.Entry(entry_window, width=30)
         license_plate_entry.pack(pady=5)
         license_plate_entry.focus_set()
 
+        # Sélection du type de véhicule
         tk.Label(entry_window, text="Type de véhicule :").pack(pady=5)
         vehicle_type_var = tk.StringVar(value="Car")  # Par défaut : Voiture
         tk.Radiobutton(entry_window, text="Voiture", variable=vehicle_type_var, value="Car").pack(pady=2)
         tk.Radiobutton(entry_window, text="Moto", variable=vehicle_type_var, value="Motorcycle").pack(pady=2)
 
+        # Bouton pour valider l'entrée
         submit_button = tk.Button(
             entry_window,
             text="Soumettre",
@@ -415,23 +443,28 @@ class GUI:
         )
         submit_button.pack(pady=10)
 
+        # Permet de fermer la fenêtre proprement
         entry_window.protocol("WM_DELETE_WINDOW", lambda: self.close_new_window(entry_window))
 
+        # Attendre la fermeture de la fenêtre
         self.root.wait_window(entry_window)
 
     def validate_entry(self, license_plate, vehicle_type, entry_window):
         """
         Valide l'entrée du véhicule en fonction de sa plaque et de son type.
         """
+        # Vérifie si la plaque est vide
         if not license_plate.strip():
             messagebox.showerror("Erreur", "Veuillez entrer une plaque d'immatriculation.")
             return
 
+        # Vérifie si le véhicule est déjà dans le parking
         if self.parking.is_vehicle_present(license_plate):
             messagebox.showerror("Erreur", "Le véhicule est déjà dans le parking.")
             self.close_new_window(entry_window)
             return
 
+        # Crée un véhicule en fonction du type sélectionné
         if vehicle_type == "Car":
             vehicle = Car(license_plate)  # Pas besoin de wheels ici
         elif vehicle_type == "Motorcycle":
@@ -440,6 +473,7 @@ class GUI:
             messagebox.showerror("Erreur", "Type de véhicule invalide.")
             return
 
+        # Ajoute le véhicule au parking
         start_time = datetime.now()
         vehicle.start_time = start_time
         self.parking.add_vehicle(vehicle)
@@ -448,6 +482,7 @@ class GUI:
             "Entrée réussie",
             f"Le véhicule {vehicle_type} immatriculé {license_plate} est entré à {start_time.strftime('%H:%M')}."
         )
+        # Ferme la fenêtre d'entrée
         self.close_new_window(entry_window)
 
     def close_new_window(self, window):
@@ -458,8 +493,7 @@ class GUI:
         window.grab_release()
         window.destroy()
 
-
-        def client_exit(self):
+    def client_exit(self):
         """
         Gère la sortie d'un véhicule du parking.
         """
