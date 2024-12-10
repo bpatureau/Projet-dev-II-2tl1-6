@@ -70,12 +70,15 @@ class GUI:
 
         self._create_entry_exit_buttons()
 
-        parking_capacity_label = tk.Label(self.parking_tab, text="Nombre de places disponibles : ", font=("Arial", 15, "bold"))
+        parking_capacity_label = tk.Label(self.parking_tab, text="Nombre de places disponibles : ",
+                                          font=("Arial", 15, "bold"))
         parking_capacity_label.pack()
 
-        parking_capacity_number_label = tk.Label(self.parking_tab, text=f"{self.parking.nbr_parking_spot_free}/{self.parking.nbr_parking_spot}",
-                                           font=("Arial", 12), fg='red')
-        parking_capacity_number_label.pack()
+        # Créez l'étiquette comme un attribut de la classe pour pouvoir la mettre à jour dynamiquement
+        self.parking_capacity_number_label = tk.Label(self.parking_tab,
+                                                      text=f"{self.parking.nbr_parking_spot_free}/{self.parking.nbr_parking_spot}",
+                                                      font=("Arial", 12), fg='red')
+        self.parking_capacity_number_label.pack()
 
         self._create_floor_selection_buttons()
 
@@ -83,6 +86,14 @@ class GUI:
         floor_label.pack()
 
         self._create_parking_overview()
+
+    def update_parking_capacity_display(self):
+        """
+        Met à jour l'affichage du nombre de places restantes.
+        """
+        self.parking_capacity_number_label.config(
+            text=f"{self.parking.nbr_parking_spot_free}/{self.parking.nbr_parking_spot}"
+        )
 
     def _create_entry_exit_buttons(self):
         button_frame = tk.Frame(self.parking_tab)
@@ -482,6 +493,9 @@ class GUI:
             "Entrée réussie",
             f"Le véhicule {vehicle_type} immatriculé {license_plate} est entré à {start_time.strftime('%H:%M')}."
         )
+
+        self.update_parking_capacity_display()
+
         # Ferme la fenêtre d'entrée
         self.close_new_window(entry_window)
 
@@ -555,10 +569,10 @@ class GUI:
                 )
 
             self.parking.remove_vehicle(license_plate)
+            self.update_parking_capacity_display()
 
         except KeyError:
             messagebox.showerror("Erreur", f"Aucun véhicule trouvé avec la plaque {license_plate}.")
-
         finally:
             self.close_new_window(exit_window)
 
