@@ -76,8 +76,7 @@ Lors du lancement du programme, ce fichier est utilisé pour charger l'objet par
 ### GUI
 
 + Permettre de réserver des places (idéalement dans le form lors d'un abonnement et/ou en cliquant sur la place voulu)
-+ ${\textsf{\color{red}Rajouter une voiture sans abonnement dans le parking}}$ en developpement par Théo
-+ ${\textsf{\color{red}Sortir une voiture sans abonnement et afficher le montant à payer}}$ en developpement par Théo
++ gestion des vehicules abonnés lors de l'entré et la sortie du parking
 + Alerte lorsque le parking est presque plein via fenêtre pop-up
 + Afficher le résumer de la journée dans le tab dédié
 + Colorer les places réservées (et 2-roues)
