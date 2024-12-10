@@ -149,20 +149,39 @@ class Parking:
 
         return vehicle
 
-    def remove_vehicle(self, license_plate):
+        def remove_vehicle(self, license_plate):
         """
-        Retire un véhicule du parking
-        :param vehicle: le véhicule qui s'en va
+        Retire un véhicule du parking.
+        :param license_plate: La plaque d'immatriculation du véhicule à retirer.
         """
-        vehicle = self.find_vehicle(license_plate)
+        vehicle = self.find_vehicle(license_plate) 
         now = datetime.now()
+
+        # Vérifiez si le véhicule est abonné, ne focntionne pas 
         if vehicle.still_subscribed():
-            return print(f"Le véhicule immatriculé {vehicle.licence_plate} est sorti le {now.strftime('%d/%m/%Y')} à {now.strftime('%H:%M')}. Ce véhicule est abonné et ne paye donc pas le tarif")
+            print(
+                f"Le véhicule immatriculé {vehicle.license_plate} est sorti le {now.strftime('%d/%m/%Y')} à {now.strftime('%H:%M')}. "
+                f"Ce véhicule est abonné et ne paye donc pas le tarif."
+            )
+        else:
+            duration = now - vehicle.start_time
+            prix = self.calc_price(duration)
+
+            if isinstance(vehicle, Car):
+                print(
+                    f"La voiture immatriculée {vehicle.license_plate} est sortie à {now.strftime('%d/%m/%Y %H:%M')} "
+                    f"après {duration} pour un tarif total de {prix:.2f}€. "
+                    f"Il reste {self.nbr_parking_spot_free + 1} places dans le parking."
+                )
+            elif isinstance(vehicle, Motorcycle):
+                print(
+                    f"La moto immatriculée {vehicle.license_plate} est sortie à {now.strftime('%d/%m/%Y %H:%M')} "
+                    f"après {duration} pour un tarif total de {prix:.2f}€. "
+                    f"Il reste {self.nbr_parking_spot_free + 1} places dans le parking."
+                )
+
         self.vehicles.remove(vehicle)
         self.nbr_parking_spot_free += 1
-        prix = self.calc_price(now - vehicle.start_time)
-        print(
-            f"Le véhicule immatriculé {vehicle.licence_plate} est sorti à {now} et est resté pendant {now - vehicle.start_time} pour un tarif total de {prix}€, il reste {self.nbr_parking_spot_free} place dans le parking")
 
     def remove_prime_vehicle(self, vehicle):
         """
