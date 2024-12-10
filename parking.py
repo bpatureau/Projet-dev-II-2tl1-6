@@ -126,14 +126,17 @@ class Parking:
         Ajoute un véhicule au parking après avoir vérifié son type.
         :param vehicle: le véhicule à rajouter (Car ou Motorcycle)
         """
+        # Vérifie si le véhicule est déjà dans le parking
         if self.is_vehicle_present(vehicle.license_plate):
             print(f"Le véhicule immatriculé {vehicle.license_plate} est déjà dans le parking.")
             return None
 
+        # Ajoute le véhicule
         self.vehicles.append(vehicle)
         self.nbr_parking_spot_free -= 1
         vehicle.start_time = datetime.now()
 
+        # Vérification du type de véhicule
         if isinstance(vehicle, Car):
             print(
                 f"La voiture immatriculée {vehicle.license_plate} est entrée le {vehicle.start_time.strftime('%d/%m/%Y')} "
@@ -149,15 +152,15 @@ class Parking:
 
         return vehicle
 
-        def remove_vehicle(self, license_plate):
+    def remove_vehicle(self, license_plate):
         """
         Retire un véhicule du parking.
         :param license_plate: La plaque d'immatriculation du véhicule à retirer.
         """
-        vehicle = self.find_vehicle(license_plate) 
+        vehicle = self.find_vehicle(license_plate)
         now = datetime.now()
 
-        # Vérifiez si le véhicule est abonné, ne focntionne pas 
+        # Vérifiez si le véhicule est abonné, ne focntionne pas
         if vehicle.still_subscribed():
             print(
                 f"Le véhicule immatriculé {vehicle.license_plate} est sorti le {now.strftime('%d/%m/%Y')} à {now.strftime('%H:%M')}. "
@@ -219,12 +222,15 @@ class Parking:
         return False
 
     def find_vehicle(self, license_plate):
-        vehicle = None
+        """
+        Recherche un véhicule dans le parking.
+        :param license_plate: La plaque d'immatriculation à rechercher.
+        :return: L'objet véhicule trouvé.
+        """
         for v in self.vehicles:
-            print(v)
             if v.license_plate == license_plate:
                 return v
-        raise KeyError
+        raise KeyError(f"Véhicule avec la plaque {license_plate} introuvable.")
 
     def is_vehicle_present(self, license_plate):
         """
