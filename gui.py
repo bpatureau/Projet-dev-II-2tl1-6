@@ -412,14 +412,6 @@ class GUI:
         # Close the new window and re-enable the main window
         self.close_new_window(window)
 
-    def close_new_window(self, new_window):
-        """
-        Re-enables the main window and destroys the new window.
-        """
-        self.root.attributes("-disabled", False)
-        new_window.grab_release()
-        new_window.destroy()
-
     def client_entry(self):
         """
         Gère l'entrée d'un véhicule dans le parking.
