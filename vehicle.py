@@ -37,6 +37,7 @@ class Vehicle:
         self.__subscribed = subscribed
         self.last_subscription = None
         self.subscription_end = None
+        self.exit_time = None
         if subscribed:
             if not isinstance(sub_time, int):
                 raise ValueError(f"sub_time doit être un entier, reçu : {type(sub_time)}")

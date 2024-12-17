@@ -1,9 +1,10 @@
+import json
 import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 
 from vehicle import Vehicle, Owner, Car, Motorcycle
-
+import os
 
 class GUI:
     def __init__(self, parking):
@@ -39,7 +40,8 @@ class GUI:
         # Subscriber tab content
         self._create_subscriber_tab_content()
 
-        # Report tab content - Empty for now, because I don't know what to do exactly on this tab yet
+        # Report tab content
+        self._create_report_tab_content()
 
         self.root.mainloop()
 
@@ -134,7 +136,37 @@ class GUI:
                 parking_space.grid(row=zone, column=spot + 1)
                 # parking_space.configure(background="lightgreen") example how we could change the colors of the parking spaces and
                 # add more functionality to parking spaces like color coding, click events, etc
-
+    def _create_report_tab_content(self):
+        """
+        Creates content for the report tab, including a centered 'hello' button
+        that prints 'hello' when clicked.
+        """
+        report_frame = tk.Frame(self.report_tab)
+        report_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)
+        files_label = tk.Label(report_frame, text="Daily Reports", font=("Arial", 15, "bold"))
+        files_label.pack(pady=(0, 10))
+        columns = ("Filename",)
+        self.report_files_tree = ttk.Treeview(report_frame, columns=columns, show="headings")
+        self.report_files_tree.heading("Filename", text="File Name")
+        self.report_files_tree.pack(expand=True, fill=tk.BOTH)
+        reports_dir = os.path.join(os.path.dirname(__file__), "daily-reports")
+        try:
+            # Ensure the directory exists
+            if not os.path.exists(reports_dir):
+                os.makedirs(reports_dir)
+            
+            # List and insert files
+            files = os.listdir(reports_dir)
+            for file in files:
+                self.report_files_tree.insert("", "end", values=(file,))
+        except Exception as e:
+            print(f"Error reading daily-reports directory: {e}")
+                
+        report_button = tk.Button(report_frame, text="Créer un rapport", command=self.create_report, 
+                                font=("Arial", 15), width=10)
+        report_button.pack()
+        
+        
     def _on_floor_select(self, floor):
         self.selected_floor = floor
         self._reload_parking_overview()
@@ -595,3 +627,59 @@ class GUI:
     def set_client_plate_number(self, window, license_plate_entry):
         self.client_license_plate = license_plate_entry.get()
         self.close_new_window(window)
+        
+    def create_report(self):
+        """
+        Crée un rapport en JSON dans le dossier daily-reports
+        le rapport contient:
+        - le nombre de voitures qui sont sortient du parking
+        - le nombre de moto qui sont sortient du parking
+        - la quantité d'argent que ces véhicules sortant ont généré
+        """
+        # Déterminer le nom du prochain rapport
+        reports_dir = os.path.join(os.path.dirname(__file__), "daily-reports")
+        os.makedirs(reports_dir, exist_ok=True)
+        existing_reports = [f for f in os.listdir(reports_dir) if f.startswith("report") and f.endswith(".json")]
+        if existing_reports:
+            report_numbers = [int(f.replace("report", "").replace(".json", "")) for f in existing_reports]
+            next_report_number = max(report_numbers) + 1
+        else:
+            next_report_number = 1
+        
+        # initialisation des variables
+        cars_exited = 0
+        motorcycles_exited = 0
+        total_revenue = 0.0
+        
+        # récupération des données collectées
+        for vehicle in self.parking.exited_vehicles:
+            if isinstance(vehicle, Car):
+                cars_exited += 1
+            elif isinstance(vehicle, Motorcycle):
+                motorcycles_exited += 1
+            if not vehicle.still_subscribed():
+                duration = (vehicle.exit_time - vehicle.start_time).total_seconds() / 3600
+                total_revenue += round(duration * self.parking.get_price(), 2)
+        
+        # format du rapport
+        report_data = {
+            "report_number": next_report_number,
+            "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "cars_exited": cars_exited,
+            "motorcycles_exited": motorcycles_exited,
+            "total_revenue": total_revenue
+        }
+        
+        report_filename = f"report{next_report_number}.json"
+        report_path = os.path.join(reports_dir, report_filename)
+        
+        # Création du rapport
+        try:
+            with open(report_path, 'w') as f:
+                json.dump(report_data, f, indent=4)
+            
+            self.report_files_tree.insert("", "end", values=(report_filename,))
+            
+            messagebox.showinfo("Rapport", f"Rapport {report_filename} créé avec succès.")
+        except Exception as e:
+            messagebox.showerror("Erreur", f"Impossible de créer le rapport : {str(e)}")

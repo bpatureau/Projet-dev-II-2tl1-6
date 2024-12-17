@@ -57,7 +57,7 @@ class Parking:
         self.__price_parking_spot = price_parking_spot
         self.vehicles = []
         self.prime_vehicles = set()
-
+        self.exited_vehicles = []
     def __str__(self):
         """
         Utiliser lors des print()
@@ -158,27 +158,27 @@ class Parking:
         :param license_plate: La plaque d'immatriculation du véhicule à retirer.
         """
         vehicle = self.find_vehicle(license_plate)
-        now = datetime.now()
-
+        vehicle.exit_time = datetime.now()
+        self.exited_vehicles.append(vehicle)
         # Vérifiez si le véhicule est abonné, ne focntionne pas
         if vehicle.still_subscribed():
             print(
-                f"Le véhicule immatriculé {vehicle.license_plate} est sorti le {now.strftime('%d/%m/%Y')} à {now.strftime('%H:%M')}. "
+                f"Le véhicule immatriculé {vehicle.license_plate} est sorti le {vehicle.exit_time.strftime('%d/%m/%Y')} à {vehicle.exit_time.strftime('%H:%M')}. "
                 f"Ce véhicule est abonné et ne paye donc pas le tarif."
             )
         else:
-            duration = now - vehicle.start_time
+            duration = vehicle.exit_time - vehicle.start_time
             prix = self.calc_price(duration)
 
             if isinstance(vehicle, Car):
                 print(
-                    f"La voiture immatriculée {vehicle.license_plate} est sortie à {now.strftime('%d/%m/%Y %H:%M')} "
+                    f"La voiture immatriculée {vehicle.license_plate} est sortie à {vehicle.exit_time.strftime('%d/%m/%Y %H:%M')} "
                     f"après {duration} pour un tarif total de {prix:.2f}€. "
                     f"Il reste {self.nbr_parking_spot_free + 1} places dans le parking."
                 )
             elif isinstance(vehicle, Motorcycle):
                 print(
-                    f"La moto immatriculée {vehicle.license_plate} est sortie à {now.strftime('%d/%m/%Y %H:%M')} "
+                    f"La moto immatriculée {vehicle.license_plate} est sortie à {vehicle.exit_time.strftime('%d/%m/%Y %H:%M')} "
                     f"après {duration} pour un tarif total de {prix:.2f}€. "
                     f"Il reste {self.nbr_parking_spot_free + 1} places dans le parking."
                 )

@@ -6,7 +6,6 @@ from parking import Parking
 from vehicle import Vehicle, Owner
 from gui import GUI
 
-
 def manage_vehicles(vehicles, owners, parking):
     """
     Gère les opérations de création, suppression et affichage d'informations sur les véhicules.
@@ -139,6 +138,7 @@ def main():
         post:appele la fonction init(), et permet d'ajouter des porprietaires, gerer/réinitialiser le parking, gerer les vehicules et quitter le programme. ainsi que de gerer la gestion de certaine erreur.
     """
     filename_error = False #Pour le finally
+    reset_parking()
     try:
         parking, vehicles, owners = init()
         GUI(parking)
