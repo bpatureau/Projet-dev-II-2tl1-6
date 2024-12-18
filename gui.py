@@ -632,9 +632,12 @@ class GUI:
         """
         Crée un rapport en JSON dans le dossier daily-reports
         le rapport contient:
-        - le nombre de voitures qui sont sortient du parking
-        - le nombre de moto qui sont sortient du parking
-        - la quantité d'argent que ces véhicules sortant ont généré
+        - Le nombre de voitures qui sont sortient du parking
+        - Le nombre de moto qui sont sortient du parking
+        - La quantité d'argent que ces véhicules sortant ont généré
+        - La date du rapport
+        Pre: /
+        Post: Si le dossier daily-reports existe, crée un fichier JSON avec les données récoltées depuis le dernier rapport
         """
         # Déterminer le nom du prochain rapport
         reports_dir = os.path.join(os.path.dirname(__file__), "daily-reports")
