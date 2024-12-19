@@ -72,7 +72,15 @@ class Parking:
             res += f"{v.start_time.strftime('%d-%m-%y')}  {v.start_time.strftime('%H:%M')}\n"
 
         return res
-
+    @property
+    def price_parking_spot(self):
+        return self.__price_parking_spot
+    @price_parking_spot.setter
+    def set_price_parking_spot(self, change):
+        if isinstance(change, float):
+            self.__price_parking_spot = change
+        else:
+            raise ValueError("La valeur que vous avez entrée n'est pas valide.")
     def create_parking(self, nbr_floor: int):
         """
 
@@ -83,7 +91,7 @@ class Parking:
         for i in range(nbr_floor):
             parking.append(Floor(i, 10, 5))
         return parking
-
+    
 
     def find_place(self, place: str):
         """
@@ -100,7 +108,7 @@ class Parking:
         """
         :return: le tarif par heure
         """
-        return self.__price_parking_spot
+        return self.price_parking_spot
 
     def change_price(self, new_price: float):
         """
